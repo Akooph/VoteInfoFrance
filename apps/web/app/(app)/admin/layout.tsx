@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 const NAV = [
   { href: '/admin', label: '📊 Dashboard' },
   { href: '/admin/cities', label: '🏙️ Villes' },
