@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import * as Sentry from '@sentry/react-native';
 import { supabase } from '@/lib/supabase';
 import type { Session } from '@supabase/supabase-js';
+
+if (process.env.EXPO_PUBLIC_SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+    environment: __DEV__ ? 'development' : 'production',
+  });
+}
 
 export default function RootLayout() {
   const [session, setSession] = useState<Session | null>(null);

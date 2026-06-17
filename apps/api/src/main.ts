@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import * as Sentry from '@sentry/node';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -7,12 +8,16 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
+  if (process.env.SENTRY_DSN) {
+    Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.NODE_ENV ?? 'production' });
+  }
+
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
   const logger = new Logger('Bootstrap');
 
   const prefix = config.get<string>('API_PREFIX', 'api/v1');
-  app.setGlobalPrefix(prefix);
+  app.setGlobalPrefix(prefix, { exclude: ['health'] });
   app.useGlobalFilters(new AllExceptionsFilter());
 
   app.enableCors({

@@ -10,6 +10,8 @@ import { VotesModule } from './modules/votes/votes.module';
 import { SummariesModule } from './modules/summaries/summaries.module';
 import { IngestionModule } from './modules/ingestion/ingestion.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { HealthModule } from './modules/health/health.module';
+import { AppCacheModule } from './common/cache/cache.module';
 import { IngestionScheduler } from './scheduler/ingestion.scheduler';
 
 @Module({
@@ -37,12 +39,14 @@ import { IngestionScheduler } from './scheduler/ingestion.scheduler';
         },
       }),
     }),
+    AppCacheModule,
     GeoModule,
     PropositionsModule,
     VotesModule,
     SummariesModule,
     IngestionModule,
     AuthModule,
+    HealthModule,
   ],
   providers: [IngestionScheduler],
 })
