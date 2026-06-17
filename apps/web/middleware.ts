@@ -41,15 +41,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // Redirect authenticated users with no ZIP code to onboarding (skip if already there)
-  if (user && pathname !== '/onboarding') {
+  // Fetch profile once for all authenticated-user checks below.
+  if (user) {
     const { data: profile } = await supabase
       .from('user_profiles')
-      .select('commune_insee')
+      .select('commune_insee, role')
       .eq('id', user.id)
       .maybeSingle();
 
-    if (!profile?.commune_insee) {
+    // Admin routes: require role = 'admin'.
+    if (pathname.startsWith('/admin') && profile?.role !== 'admin') {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+
+    // All other protected routes: require ZIP code set (skip admin + onboarding).
+    if (!pathname.startsWith('/admin') && pathname !== '/onboarding' && !profile?.commune_insee) {
       return NextResponse.redirect(new URL('/onboarding', request.url));
     }
   }
