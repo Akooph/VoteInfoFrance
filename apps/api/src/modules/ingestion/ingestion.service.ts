@@ -15,12 +15,14 @@ type AdapterMap = Record<string, () => Promise<void>>;
 @Injectable()
 export class IngestionService {
   private readonly logger = new Logger(IngestionService.name);
-  private readonly supabase = createSupabaseAdminClient(this.config);
+  private readonly supabase: ReturnType<typeof createSupabaseAdminClient>;
 
   constructor(
     private readonly config: ConfigService,
     private readonly summarization: SummarizationService,
-  ) {}
+  ) {
+    this.supabase = createSupabaseAdminClient(config);
+  }
 
   async triggerSource(sourceId: string): Promise<{ message: string }> {
     const entry = SOURCE_REGISTRY.find((s) => s.id === sourceId);

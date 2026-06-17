@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Map, { Source, Layer, Popup } from 'react-map-gl/maplibre';
+import MapGL, { Source, Layer, Popup } from 'react-map-gl/maplibre';
 import type { MapLayerMouseEvent } from 'react-map-gl/maplibre';
 import type { DepartmentVoteTally } from '@vif/types';
 import type { FeatureCollection } from 'geojson';
@@ -66,7 +66,7 @@ export default function FranceMap({ data }: Props) {
   if (!geojson) return null;
 
   return (
-    <Map
+    <MapGL
       initialViewState={{ longitude: 2.5, latitude: 46.5, zoom: 5.2 }}
       style={{ width: '100%', height: '100%' }}
       mapStyle={MAP_STYLE}
@@ -99,7 +99,7 @@ export default function FranceMap({ data }: Props) {
       </Source>
 
       {hoverInfo && (
-        <Popup longitude={hoverInfo.longitude} latitude={hoverInfo.latitude} closeButton={false}>
+        <Popup longitude={hoverInfo.longitude} latitude={hoverInfo.latitude} closeButton={false} anchor="bottom">
           <div style={{ padding: 8, fontSize: 13, minWidth: 160 }}>
             <strong>Département {hoverInfo.codeDept}</strong>
             {hoverInfo.data ? (
@@ -116,6 +116,6 @@ export default function FranceMap({ data }: Props) {
           </div>
         </Popup>
       )}
-    </Map>
+    </MapGL>
   );
 }

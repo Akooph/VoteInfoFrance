@@ -9,9 +9,11 @@ import { createSupabaseAdminClient } from '../../config/supabase.config';
 
 @Injectable()
 export class SupabaseAuthGuard implements CanActivate {
-  private readonly supabase = createSupabaseAdminClient(this.config);
+  private readonly supabase: ReturnType<typeof createSupabaseAdminClient>;
 
-  constructor(private readonly config: ConfigService) {}
+  constructor(private readonly config: ConfigService) {
+    this.supabase = createSupabaseAdminClient(config);
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();

@@ -39,13 +39,13 @@ export class PropositionsController {
   ) {
     const clampedLimit = Math.min(limit, 50);
     return this.propositions.list({
-      geoLevel,
-      geoCode,
-      status,
-      institution,
       page,
       limit: clampedLimit,
-      userId: req.user?.id,
+      ...(req.user?.id !== undefined && { userId: req.user.id }),
+      ...(geoLevel !== undefined && { geoLevel }),
+      ...(geoCode !== undefined && { geoCode }),
+      ...(status !== undefined && { status }),
+      ...(institution !== undefined && { institution }),
     });
   }
 

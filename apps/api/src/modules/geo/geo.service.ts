@@ -24,7 +24,7 @@ export class GeoService {
       throw new NotFoundException(`No commune found for ZIP code ${codePostal}`);
     }
 
-    const row = communes[0];
+    const row = communes[0]!;
     const commune: Commune = {
       codeInsee: row.code_insee,
       nom: row.nom,

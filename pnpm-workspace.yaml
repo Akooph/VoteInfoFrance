@@ -3,6 +3,7 @@ packages:
   - "packages/*"
 allowBuilds:
   '@scarf/scarf': false
+  '@sentry/cli': true
   msgpackr-extract: true
   sharp: true
   unrs-resolver: true
