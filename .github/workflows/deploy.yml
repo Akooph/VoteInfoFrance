@@ -13,14 +13,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Apply migrations
-        # Runs each migration file in order against the Supabase Postgres DB.
-        # SUPABASE_DB_URL format: postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres
-        run: |
-          for f in $(ls infra/supabase/migrations/*.sql | sort); do
-            echo "Applying $f…"
-            psql "${{ secrets.SUPABASE_DB_URL }}" -f "$f"
-          done
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Push migrations
+        run: supabase db push --migrations-dir infra/supabase/migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
 
   # ── API → Fly.io ────────────────────────────────────────────────────────────
   api:
