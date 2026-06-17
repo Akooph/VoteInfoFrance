@@ -1,6 +1,8 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
+// Exact '/' is the landing page — always public so static builds and anonymous
+// users can access it. startsWith check is used for all other public prefixes.
 const PUBLIC_PATHS = ['/sign-in', '/sign-up', '/onboarding', '/auth/callback'];
 
 export async function middleware(request: NextRequest) {
@@ -26,14 +28,16 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
+  const isPublic =
+    pathname === '/' || PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+
   // Redirect unauthenticated users away from protected routes
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
   if (!user && !isPublic) {
     return NextResponse.redirect(new URL(`/sign-in?next=${encodeURIComponent(pathname)}`, request.url));
   }
 
-  // Redirect authenticated users away from auth pages
-  if (user && (pathname === '/sign-in' || pathname === '/sign-up')) {
+  // Redirect authenticated users from landing/auth pages to dashboard
+  if (user && (pathname === '/' || pathname === '/sign-in' || pathname === '/sign-up')) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
