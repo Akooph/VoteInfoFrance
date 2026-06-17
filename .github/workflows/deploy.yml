@@ -32,30 +32,6 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-  # ── Web app → Fly.io ────────────────────────────────────────────────────────
-  web:
-    name: Deploy Web App
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: Create app if needed
-        run: flyctl apps create voteinfofrance-web --org personal 2>/dev/null || true
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
-      - name: Deploy
-        run: |
-          flyctl deploy --remote-only \
-            --app voteinfofrance-web \
-            --config apps/web/fly.toml \
-            --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" \
-            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
-            --build-arg NEXT_PUBLIC_API_URL="${{ secrets.NEXT_PUBLIC_API_URL }}"
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
   # ── Landing page → GitHub Pages ─────────────────────────────────────────────
   landing:
     name: Deploy Landing Page
