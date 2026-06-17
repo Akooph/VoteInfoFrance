@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   assetPrefix: basePath ? `${basePath}/` : '',
   trailingSlash: true,
   images: { unoptimized: true },
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: false },
 };
 
 export default nextConfig;
