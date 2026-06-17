@@ -1,0 +1,39 @@
+{
+  "name": "@vif/mobile",
+  "version": "0.0.1",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "dev": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint app --ext .ts,.tsx",
+    "clean": "rm -rf .expo"
+  },
+  "dependencies": {
+    "@vif/types": "workspace:*",
+    "expo": "^53.0.12",
+    "expo-router": "^5.0.7",
+    "expo-secure-store": "^14.1.4",
+    "expo-status-bar": "^2.2.3",
+    "expo-font": "^13.3.1",
+    "expo-splash-screen": "^0.29.24",
+    "@supabase/supabase-js": "^2.49.8",
+    "react": "18.3.1",
+    "react-native": "0.79.4",
+    "@react-navigation/native": "^7.1.9",
+    "react-native-safe-area-context": "^5.4.0",
+    "react-native-screens": "^4.11.1",
+    "react-native-gesture-handler": "^2.25.0",
+    "react-native-reanimated": "^3.17.5",
+    "@maplibre/maplibre-react-native": "^10.0.0-beta.15",
+    "swr": "^2.3.3"
+  },
+  "devDependencies": {
+    "@vif/config": "workspace:*",
+    "@babel/core": "^7.27.4",
+    "@types/react": "~18.3.23",
+    "typescript": "^5.8.3"
+  }
+}

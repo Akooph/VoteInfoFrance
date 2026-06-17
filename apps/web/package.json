@@ -1,0 +1,37 @@
+{
+  "name": "@vif/web",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "next build",
+    "build:landing": "NEXT_LANDING_ONLY=true next build",
+    "start": "next start --port 3001",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .next out out-landing"
+  },
+  "dependencies": {
+    "@vif/types": "workspace:*",
+    "@vif/ui": "workspace:*",
+    "@supabase/supabase-js": "^2.49.8",
+    "@supabase/ssr": "^0.6.1",
+    "next": "^15.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-map-gl": "^8.0.4",
+    "maplibre-gl": "^5.6.0",
+    "swr": "^2.3.3"
+  },
+  "devDependencies": {
+    "@vif/config": "workspace:*",
+    "@types/node": "^22.15.31",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
+    "typescript": "^5.8.3",
+    "tailwindcss": "^4.1.10",
+    "@tailwindcss/postcss": "^4.1.10",
+    "eslint": "^9.29.0",
+    "eslint-config-next": "^15.3.3"
+  }
+}
