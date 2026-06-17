@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import type { GeoLookupResult, Commune, Departement, Region } from '@vif/types';
 import { createSupabaseAdminClient } from '../../config/supabase.config';
 

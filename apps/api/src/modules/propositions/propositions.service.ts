@@ -101,7 +101,7 @@ export class PropositionsService {
     };
   }
 
-  async findById(id: string, userId?: string): Promise<Proposition> {
+  async findById(id: string, _userId?: string): Promise<Proposition> {
     const { data, error } = await this.supabase
       .from('propositions')
       .select('*, summaries(*)')

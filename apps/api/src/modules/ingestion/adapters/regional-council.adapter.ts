@@ -59,7 +59,7 @@ export class RegionalCouncilAdapter extends BaseAdapter {
   private async fetchDataset(
     datasetId: string,
     regionCode: string,
-    regionName: string,
+    _regionName: string,
   ): Promise<NormalizedProposition[]> {
     const response = await axios.get<DataGouvDataset>(
       `${DATAGOUV_API}/datasets/${datasetId}/`,
