@@ -17,6 +17,11 @@ jobs:
         with:
           version: latest
 
+      - name: Link project
+        run: supabase link --project-ref oagncujckotyfijwfxoj
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
       - name: Push migrations
         run: supabase db push --linked --password "${{ secrets.SUPABASE_DB_PASSWORD }}"
         env:
@@ -100,37 +105,22 @@ jobs:
           node-version: '22'
           cache: 'pnpm'
 
-      - name: Cache node_modules
-        id: cache-node-modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            apps/web/node_modules
-            packages/types/node_modules
-            packages/ui/node_modules
-            packages/config/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
-
       - name: Install dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --filter @vif/landing
 
-      - name: Build shared packages
-        run: pnpm --filter @vif/types build && pnpm --filter @vif/ui build
+      - name: Copy geo data
+        run: mkdir -p apps/landing/public/geo && cp apps/web/public/geo/departements.geojson apps/landing/public/geo/
 
-      - name: Build landing (static export)
-        run: pnpm --filter @vif/web build:landing
+      - name: Build landing
+        run: pnpm --filter @vif/landing build
         env:
-          NEXT_LANDING_ONLY: 'true'
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder_anon_key' }}
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://placeholder-api.example.com' }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_BASE_PATH: '/VoteInfoFrance'
 
       - name: Publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./apps/web/out-landing
+          publish_dir: ./apps/landing/out
           force_orphan: true
