@@ -59,7 +59,7 @@ export default async function IngestionPage() {
       {/* Run history */}
       <div style={{ background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
         <h2 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: '#111827' }}>Historique des runs</h2>
-        {!runs?.length && <p style={{ color: '#6b7280', fontSize: 14 }}>Aucun run pour l'instant.</p>}
+        {!runs?.length && <p style={{ color: '#6b7280', fontSize: 14 }}>Aucun run pour l&apos;instant.</p>}
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: '2px solid #f3f4f6' }}>

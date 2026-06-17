@@ -6,10 +6,27 @@ on:
   workflow_dispatch:
 
 jobs:
+  # ── DB Migrations → Supabase ─────────────────────────────────────────────────
+  migrate:
+    name: Run DB Migrations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply migrations
+        # Runs each migration file in order against the Supabase Postgres DB.
+        # SUPABASE_DB_URL format: postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres
+        run: |
+          for f in $(ls infra/supabase/migrations/*.sql | sort); do
+            echo "Applying $f…"
+            psql "${{ secrets.SUPABASE_DB_URL }}" -f "$f"
+          done
+
   # ── API → Fly.io ────────────────────────────────────────────────────────────
   api:
     name: Deploy API
     runs-on: ubuntu-latest
+    needs: migrate
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
@@ -36,6 +53,7 @@ jobs:
   web:
     name: Deploy Web App
     runs-on: ubuntu-latest
+    needs: migrate
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
