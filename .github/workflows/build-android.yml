@@ -31,7 +31,9 @@ jobs:
           distribution: 'temurin'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        # --shamefully-hoist puts all packages at root node_modules so Gradle
+        # can resolve expo/package.json when running the autolinking script.
+        run: pnpm install --frozen-lockfile --shamefully-hoist
 
       - name: Generate Android project
         working-directory: apps/mobile
