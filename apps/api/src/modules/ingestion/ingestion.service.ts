@@ -6,6 +6,8 @@ import { SOURCE_REGISTRY } from './source-registry';
 import { AssembleeNationaleAdapter } from './adapters/assemblee-nationale.adapter';
 import { SenatAdapter } from './adapters/senat.adapter';
 import { EuropeanParliamentAdapter } from './adapters/european-parliament.adapter';
+import { LegifranceAdapter } from './adapters/legifrance.adapter';
+import { RegionalCouncilAdapter } from './adapters/regional-council.adapter';
 import type { IngestionRun } from '@vif/types';
 
 type AdapterMap = Record<string, () => Promise<void>>;
@@ -61,6 +63,8 @@ export class IngestionService {
       assemblee_nationale: () => this.runAssembleeNationale(),
       senat: () => this.runSenat(),
       parlement_europeen: () => this.runEuropeanParliament(),
+      legifrance: () => this.runLegifrance(),
+      conseils_regionaux: () => this.runRegionalCouncils(),
     };
 
     const handler = adapterMap[sourceId];
@@ -87,6 +91,24 @@ export class IngestionService {
 
   private async runEuropeanParliament(): Promise<void> {
     const adapter = new EuropeanParliamentAdapter(this.supabase);
+    const props = await adapter.fetchPropositions();
+    const { inserted } = await adapter.upsertPropositions(props);
+    await this.enqueueNewSummarizations(props.slice(0, inserted));
+  }
+
+  private async runLegifrance(): Promise<void> {
+    const adapter = new LegifranceAdapter(
+      this.supabase,
+      this.config.get<string>('PISTE_CLIENT_ID', ''),
+      this.config.get<string>('PISTE_CLIENT_SECRET', ''),
+    );
+    const props = await adapter.fetchPropositions();
+    const { inserted } = await adapter.upsertPropositions(props);
+    await this.enqueueNewSummarizations(props.slice(0, inserted));
+  }
+
+  private async runRegionalCouncils(): Promise<void> {
+    const adapter = new RegionalCouncilAdapter(this.supabase);
     const props = await adapter.fetchPropositions();
     const { inserted } = await adapter.upsertPropositions(props);
     await this.enqueueNewSummarizations(props.slice(0, inserted));
