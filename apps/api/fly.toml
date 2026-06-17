@@ -2,6 +2,7 @@ app = "voteinfofrance-api"
 primary_region = "cdg"
 
 [build]
+  dockerfile = "apps/api/Dockerfile"
 
 [http_service]
   internal_port = 3000
