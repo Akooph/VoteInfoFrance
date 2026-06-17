@@ -13,6 +13,7 @@ const nextConfig: NextConfig = isLandingBuild
       images: { unoptimized: true },
     }
   : {
+      output: 'standalone',
       transpilePackages: ['@vif/ui', '@vif/types'],
     };
 

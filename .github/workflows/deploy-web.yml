@@ -1,0 +1,41 @@
+name: Deploy Web App to Fly.io
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web/**'
+      - 'packages/types/**'
+      - 'packages/ui/**'
+      - 'packages/config/**'
+
+jobs:
+  deploy:
+    name: Deploy Web App
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Create Fly app if it doesn't exist yet
+        run: flyctl apps create voteinfofrance-web --org personal 2>/dev/null || true
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Deploy to Fly.io
+        # Run from repo root so the Docker build context includes the full
+        # monorepo (packages/types, packages/ui, pnpm-workspace.yaml, etc.)
+        # NEXT_PUBLIC_* vars are embedded into the client bundle at build time,
+        # so they must be passed as --build-arg (not fly secrets).
+        run: |
+          flyctl deploy --remote-only \
+            --app voteinfofrance-web \
+            --config apps/web/fly.toml \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
+            --build-arg NEXT_PUBLIC_API_URL="${{ secrets.NEXT_PUBLIC_API_URL }}"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

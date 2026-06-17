@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
-import { BullModule } from '@nestjs/bullmq';
 import { envValidationSchema } from './config/env.validation';
 import { GeoModule } from './modules/geo/geo.module';
 import { PropositionsModule } from './modules/propositions/propositions.module';
@@ -29,16 +28,6 @@ import { IngestionScheduler } from './scheduler/ingestion.scheduler';
       }],
     }),
     ScheduleModule.forRoot(),
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        connection: {
-          host: config.get<string>('REDIS_HOST', 'localhost'),
-          port: config.get<number>('REDIS_PORT', 6379),
-          password: config.get<string>('REDIS_PASSWORD') || undefined,
-        },
-      }),
-    }),
     AppCacheModule,
     GeoModule,
     PropositionsModule,

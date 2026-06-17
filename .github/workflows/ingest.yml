@@ -1,0 +1,32 @@
+name: Ingest Propositions
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'   # every 4 hours
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Source to ingest (leave blank for all)'
+        required: false
+        default: ''
+
+jobs:
+  ingest:
+    name: Trigger ingestion
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Assemble nationale
+        run: |
+          curl -sf -X POST "${{ secrets.NEXT_PUBLIC_API_URL }}/admin/ingestion/trigger?source=assemblee_nationale" \
+            -H "x-admin-api-key: ${{ secrets.ADMIN_API_KEY }}" || echo "assemblee_nationale failed"
+
+      - name: Sénat
+        run: |
+          curl -sf -X POST "${{ secrets.NEXT_PUBLIC_API_URL }}/admin/ingestion/trigger?source=senat" \
+            -H "x-admin-api-key: ${{ secrets.ADMIN_API_KEY }}" || echo "senat failed"
+
+      - name: Parlement européen
+        run: |
+          curl -sf -X POST "${{ secrets.NEXT_PUBLIC_API_URL }}/admin/ingestion/trigger?source=parlement_europeen" \
+            -H "x-admin-api-key: ${{ secrets.ADMIN_API_KEY }}" || echo "parlement_europeen failed"

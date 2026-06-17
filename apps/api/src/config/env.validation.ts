@@ -14,7 +14,7 @@ export const envValidationSchema = Joi.object({
   REDIS_PORT: Joi.number().default(6379),
   REDIS_PASSWORD: Joi.string().allow('').default(''),
 
-  MISTRAL_API_KEY: Joi.string().required(),
+  MISTRAL_API_KEY: Joi.string().allow('').default(''),
   SUMMARIZATION_ENABLED: Joi.boolean().default(true),
   MISTRAL_MODEL: Joi.string().default('mistral-small-latest'),
   MISTRAL_MAX_TOKENS: Joi.number().default(1500),
