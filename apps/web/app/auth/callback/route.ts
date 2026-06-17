@@ -1,8 +1,10 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 
-// Handles the magic-link / OAuth callback from Supabase Auth.
-// After email confirmation, Supabase redirects here with a code.
+// Required for `output: 'export'` (landing-only static build).
+// The landing page never serves this route; the real SSR app handles it dynamically.
+export const dynamic = 'force-static';
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');

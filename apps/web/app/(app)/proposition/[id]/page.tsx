@@ -1,5 +1,9 @@
 'use client';
 
+// Static export (landing build): generate 0 pages for this dynamic route.
+export const dynamicParams = false;
+export function generateStaticParams() { return []; }
+
 import { useEffect, useState } from 'react';
 import { use } from 'react';
 import { api } from '@/lib/api-client';
