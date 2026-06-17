@@ -1,8 +1,11 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
+const PUBLIC_PATHS = ['/sign-in', '/sign-up', '/onboarding', '/auth/callback'];
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
+  const { pathname } = request.nextUrl;
 
   const supabase = createServerClient(
     process.env['NEXT_PUBLIC_SUPABASE_URL']!,
@@ -23,13 +26,35 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/sign-in', request.url));
+  // Redirect unauthenticated users away from protected routes
+  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+  if (!user && !isPublic) {
+    return NextResponse.redirect(new URL(`/sign-in?next=${encodeURIComponent(pathname)}`, request.url));
+  }
+
+  // Redirect authenticated users away from auth pages
+  if (user && (pathname === '/sign-in' || pathname === '/sign-up')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  // Redirect authenticated users with no ZIP code to onboarding (skip if already there)
+  if (user && pathname !== '/onboarding') {
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('commune_insee')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (!profile?.commune_insee) {
+      return NextResponse.redirect(new URL('/onboarding', request.url));
+    }
   }
 
   return supabaseResponse;
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/map/:path*', '/proposition/:path*'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|icons|geo|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };
