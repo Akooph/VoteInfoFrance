@@ -21,7 +21,24 @@ jobs:
           node-version: '22'
           cache: 'pnpm'
 
+      # Cache node_modules keyed by lockfile — skips install (and the 3-min
+      # supply-chain check) when no dependency has changed.
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/api/node_modules
+            apps/web/node_modules
+            apps/mobile/node_modules
+            packages/types/node_modules
+            packages/ui/node_modules
+            packages/config/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
+
       - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Build shared packages

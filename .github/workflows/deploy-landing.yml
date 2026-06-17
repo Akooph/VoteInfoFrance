@@ -28,8 +28,33 @@ jobs:
           node-version: '22'
           cache: 'pnpm'
 
+      # Cache node_modules keyed by lockfile — skips install (and the 3-min
+      # supply-chain check) when no dependency has changed.
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/web/node_modules
+            packages/types/node_modules
+            packages/ui/node_modules
+            packages/config/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
+
       - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile
+
+      # Cache the Next.js webpack/swc build cache across runs.
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: apps/web/out-landing/cache
+          key: ${{ runner.os }}-nextjs-landing-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('apps/web/**.[jt]s', 'apps/web/**.[jt]sx', 'packages/**.[jt]s') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-landing-${{ hashFiles('pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nextjs-landing-
 
       - name: Build shared packages
         run: pnpm --filter @vif/types build && pnpm --filter @vif/ui build
