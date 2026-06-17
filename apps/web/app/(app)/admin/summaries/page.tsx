@@ -50,7 +50,7 @@ export default async function SummariesPage() {
           <tbody>
             {summaries?.map((s) => {
               const placeholder = isPlaceholder(s.model_used);
-              const prop = s.propositions as { titre: string } | null;
+              const prop = s.propositions as unknown as { titre: string } | null;
               return (
                 <tr key={s.id} style={{ borderBottom: '1px solid #f9fafb' }}>
                   <td style={{ padding: '10px 12px 10px 0', color: '#111827', maxWidth: 320, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={prop?.titre}>{prop?.titre ?? '—'}</td>

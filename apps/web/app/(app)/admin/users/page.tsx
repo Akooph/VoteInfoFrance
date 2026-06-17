@@ -38,7 +38,7 @@ export default async function UsersPage() {
           </thead>
           <tbody>
             {users?.map((u) => {
-              const commune = u.communes as { nom: string } | null;
+              const commune = u.communes as unknown as { nom: string } | null;
               return (
                 <tr key={u.id} style={{ borderBottom: '1px solid #f9fafb' }}>
                   <td style={{ padding: '10px 12px 10px 0', color: '#111827' }}>{emailMap[u.id] ?? u.id.slice(0, 8) + '…'}</td>
