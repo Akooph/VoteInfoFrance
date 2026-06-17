@@ -13,7 +13,7 @@ ALTER TABLE user_profiles
 
 CREATE TABLE IF NOT EXISTS supported_cities (
   id              UUID    DEFAULT gen_random_uuid() PRIMARY KEY,
-  commune_insee   TEXT    NOT NULL UNIQUE REFERENCES communes(code_insee) ON DELETE CASCADE,
+  commune_insee   TEXT    NOT NULL UNIQUE,
   status          TEXT    NOT NULL DEFAULT 'active'
                     CHECK (status IN ('active', 'coming_soon', 'paused')),
   scraping_sources JSONB  NOT NULL DEFAULT '[]',
