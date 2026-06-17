@@ -37,6 +37,18 @@ export default function PropositionPage({ params }: { params: Promise<{ id: stri
       }
     }
     load();
+
+    // Realtime subscription: refresh tally whenever a new vote is cast on this proposition
+    const channel = supabase
+      .channel(`votes:${id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'votes', filter: `proposition_id=eq.${id}` },
+        () => { api.propositions.tally(id).then(setTally).catch(() => null); },
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [id]);
 
   async function handleVote(option: VoteOption) {
