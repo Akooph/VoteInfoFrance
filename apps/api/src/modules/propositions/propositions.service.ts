@@ -8,6 +8,7 @@ import type {
   Proposition,
 } from '@vif/types';
 import { createSupabaseAdminClient } from '../../config/supabase.config';
+import { AppCacheService } from '../../common/cache/cache.service';
 
 type ListQuery = {
   geoLevel?: GeoLevel;
@@ -19,11 +20,16 @@ type ListQuery = {
   userId?: string;
 };
 
+const LIST_TTL = 300; // 5 minutes
+
 @Injectable()
 export class PropositionsService {
   private readonly supabase: SupabaseClient;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(
+    private readonly config: ConfigService,
+    private readonly cache: AppCacheService,
+  ) {
     this.supabase = createSupabaseAdminClient(config);
   }
 
@@ -31,26 +37,51 @@ export class PropositionsService {
     const { geoLevel, geoCode, status, institution, page, limit, userId } = query;
     const offset = (page - 1) * limit;
 
-    let q = this.supabase
-      .from('propositions')
-      .select('id, source_url, institution, titre, date_depot, date_vote, status, geo_level, geo_code, summaries(id)', { count: 'exact' });
+    // Cache key excludes userId — user-specific votes injected after cache hit
+    const cacheKey = `propositions:list:${geoLevel ?? ''}:${geoCode ?? ''}:${status ?? ''}:${institution ?? ''}:${page}:${limit}`;
 
-    if (geoLevel) q = q.eq('geo_level', geoLevel);
-    if (geoCode) q = q.eq('geo_code', geoCode);
-    if (status) q = q.eq('status', status);
-    if (institution) q = q.eq('institution', institution);
+    type BaseResult = { data: PaginatedPropositions['data']; total: number };
+    let base = await this.cache.get<BaseResult>(cacheKey);
 
-    const { data, count, error } = await q
-      .order('date_depot', { ascending: false, nullsFirst: false })
-      .range(offset, offset + limit - 1);
+    if (!base) {
+      let q = this.supabase
+        .from('propositions')
+        .select('id, source_url, institution, titre, date_depot, date_vote, status, geo_level, geo_code, summaries(id)', { count: 'exact' });
 
-    if (error) throw error;
+      if (geoLevel) q = q.eq('geo_level', geoLevel);
+      if (geoCode) q = q.eq('geo_code', geoCode);
+      if (status) q = q.eq('status', status);
+      if (institution) q = q.eq('institution', institution);
 
-    const total = count ?? 0;
+      const { data, count, error } = await q
+        .order('date_depot', { ascending: false, nullsFirst: false })
+        .range(offset, offset + limit - 1);
+
+      if (error) throw error;
+
+      base = {
+        data: (data ?? []).map((r) => ({
+          id: r.id,
+          sourceUrl: r.source_url,
+          institution: r.institution,
+          titre: r.titre,
+          dateDepot: r.date_depot,
+          dateVote: r.date_vote,
+          status: r.status,
+          geoLevel: r.geo_level,
+          geoCode: r.geo_code,
+          hasSummary: Array.isArray(r.summaries) && r.summaries.length > 0,
+          userVote: null,
+        })),
+        total: count ?? 0,
+      };
+
+      await this.cache.set(cacheKey, base, LIST_TTL);
+    }
 
     const userVoteMap = new Map<string, string>();
-    if (userId && data?.length) {
-      const ids = data.map((r) => r.id);
+    if (userId && base.data.length) {
+      const ids = base.data.map((r) => r.id);
       const { data: uv } = await this.supabase
         .from('votes')
         .select('proposition_id, option')
@@ -60,20 +91,9 @@ export class PropositionsService {
       for (const v of uv ?? []) userVoteMap.set(v.proposition_id, v.option);
     }
 
+    const total = base.total;
     return {
-      data: (data ?? []).map((r) => ({
-        id: r.id,
-        sourceUrl: r.source_url,
-        institution: r.institution,
-        titre: r.titre,
-        dateDepot: r.date_depot,
-        dateVote: r.date_vote,
-        status: r.status,
-        geoLevel: r.geo_level,
-        geoCode: r.geo_code,
-        hasSummary: Array.isArray(r.summaries) && r.summaries.length > 0,
-        userVote: userVoteMap.get(r.id) ?? null,
-      })),
+      data: base.data.map((r) => ({ ...r, userVote: userVoteMap.get(r.id) ?? null })),
       total,
       page,
       limit,

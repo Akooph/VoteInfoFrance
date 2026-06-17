@@ -3,12 +3,18 @@ import { ConfigService } from '@nestjs/config';
 import { SupabaseClient } from '@supabase/supabase-js';
 import type { CreateVoteBody, UserVote, VoteTally, DepartmentVoteTally } from '@vif/types';
 import { createSupabaseAdminClient } from '../../config/supabase.config';
+import { AppCacheService } from '../../common/cache/cache.service';
+
+const MAP_TTL = 300; // 5 minutes
 
 @Injectable()
 export class VotesService {
   private readonly supabase: SupabaseClient;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(
+    private readonly config: ConfigService,
+    private readonly cache: AppCacheService,
+  ) {
     this.supabase = createSupabaseAdminClient(config);
   }
 
@@ -31,6 +37,10 @@ export class VotesService {
       .single();
 
     if (error) throw error;
+
+    // Invalidate map cache so next request reflects the new vote
+    await this.cache.del(`votes:map:${body.propositionId}`);
+
     return { propositionId: data.proposition_id, option: data.option, votedAt: data.voted_at };
   }
 
@@ -66,6 +76,10 @@ export class VotesService {
   }
 
   async getDepartmentTally(propositionId: string): Promise<DepartmentVoteTally[]> {
+    const cacheKey = `votes:map:${propositionId}`;
+    const cached = await this.cache.get<DepartmentVoteTally[]>(cacheKey);
+    if (cached) return cached;
+
     const { data, error } = await this.supabase
       .from('vote_tallies')
       .select('code_dept, code_region, option, count')
@@ -92,6 +106,8 @@ export class VotesService {
       entry.total += Number(row.count);
     }
 
-    return Array.from(map.values());
+    const result = Array.from(map.values());
+    await this.cache.set(cacheKey, result, MAP_TTL);
+    return result;
   }
 }
