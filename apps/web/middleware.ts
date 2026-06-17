@@ -51,8 +51,9 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
-    // All other protected routes: require ZIP code set (skip admin + onboarding).
-    if (!pathname.startsWith('/admin') && pathname !== '/onboarding' && !profile?.commune_insee) {
+    // All other protected routes: require ZIP code set (skip admin users + onboarding).
+    const needsOnboarding = !profile?.commune_insee && profile?.role !== 'admin';
+    if (needsOnboarding && !pathname.startsWith('/admin') && pathname !== '/onboarding') {
       return NextResponse.redirect(new URL('/onboarding', request.url));
     }
   }
