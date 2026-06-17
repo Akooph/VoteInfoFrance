@@ -31,7 +31,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --filter @vif/mobile...
+        run: pnpm install --frozen-lockfile
 
       - name: Generate Android project
         working-directory: apps/mobile
