@@ -23,10 +23,10 @@ supabase db push         # push local migrations to cloud
 
 ## Adding a new migration
 
-1. Create `infra/supabase/migrations/00N_description.sql`
+1. Create `supabase/migrations/00N_description.sql` (at repo root, not infra/)
 2. Number it sequentially (002_, 003_, etc.)
 3. Run `supabase migration up` locally to test
-4. Commit the file — CI will run `supabase db push` on merge to main
+4. Commit the file — CI will run `supabase db push --linked` on merge to main
 
 ## RLS conventions
 
