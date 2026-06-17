@@ -72,6 +72,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder_anon_key' }}
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://placeholder-api.example.com' }}
+          NEXT_PUBLIC_BASE_PATH: '/VoteInfoFrance'
 
       - name: Publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

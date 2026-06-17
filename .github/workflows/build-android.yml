@@ -8,6 +8,9 @@ on:
       - 'apps/mobile/**'
       - 'packages/types/**'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build Android APK
@@ -42,9 +45,13 @@ jobs:
         working-directory: apps/mobile/android
         run: ./gradlew assembleRelease
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: voteinfofrance-android-${{ github.run_number }}
-          path: apps/mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk
-          retention-days: 90
+      - name: Publish GitHub Release
+        run: |
+          gh release delete android-latest --yes 2>/dev/null || true
+          gh release create android-latest \
+            --title "Android APK (dernière version)" \
+            --notes "Dernière version de l'application Android. Téléchargez et installez sur votre appareil (sources inconnues requises)." \
+            --prerelease \
+            apps/mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk#voteinfofrance.apk
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
