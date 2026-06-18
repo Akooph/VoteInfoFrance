@@ -35,61 +35,61 @@ VALUES
 -- Commune
 ('TEST-COM-001', 'https://example.com/001', 'conseil_municipal',
  'Rénovation de la salle des fêtes municipale',
- 'La commune de Ville Test envisage la rénovation complète de sa salle des fêtes, construite en 1978. Les travaux porteraient sur l'isolation thermique, la mise aux normes électriques et l'accessibilité PMR. Budget estimé : 450 000 €, financé à 40% par des subventions régionales.',
+ 'La commune de Ville Test envisage la rénovation complète de sa salle des fêtes, construite en 1978. Les travaux porteraient sur l''isolation thermique, la mise aux normes électriques et l''accessibilité PMR. Budget estimé : 450 000 €, financé à 40% par des subventions régionales.',
  '2026-03-15', '2026-04-10', 'adopte', 'commune', '00000'),
 
 ('TEST-COM-002', 'https://example.com/002', 'conseil_municipal',
- 'Création d'une piste cyclable rue de la Paix',
- 'Projet d'aménagement d'une piste cyclable bidirectionnelle de 1,2 km sur la rue de la Paix, avec suppression de 45 places de stationnement. Le projet s'inscrit dans le plan mobilité douce 2025-2030 de la commune.',
+ 'Création d''une piste cyclable rue de la Paix',
+ 'Projet d''aménagement d''une piste cyclable bidirectionnelle de 1,2 km sur la rue de la Paix, avec suppression de 45 places de stationnement. Le projet s''inscrit dans le plan mobilité douce 2025-2030 de la commune.',
  '2026-02-01', NULL, 'en_cours', 'commune', '00000'),
 
 -- Département
 ('TEST-DEP-001', 'https://example.com/003', 'conseil_departemental',
- 'Plan départemental d'aide à la rénovation énergétique des logements',
- 'Le Département Test propose un fonds de 12 millions d'euros pour subventionner la rénovation énergétique des logements privés, avec une priorité accordée aux ménages sous le seuil de pauvreté. Le dispositif prévoit des aides allant jusqu'à 10 000 € par foyer.',
+ 'Plan départemental d''aide à la rénovation énergétique des logements',
+ 'Le Département Test propose un fonds de 12 millions d''euros pour subventionner la rénovation énergétique des logements privés, avec une priorité accordée aux ménages sous le seuil de pauvreté. Le dispositif prévoit des aides allant jusqu''à 10 000 € par foyer.',
  '2026-01-20', '2026-02-28', 'adopte', 'departement', 'TEST'),
 
 ('TEST-DEP-002', 'https://example.com/004', 'conseil_departemental',
  'Fermeture du collège rural de Saint-Loup-en-Test',
- 'Face à la baisse démographique, l'exécutif départemental propose la fermeture du collège de Saint-Loup-en-Test (38 élèves) et le regroupement avec l'établissement de Ville Test. Les élèves bénéficieraient d'un transport scolaire gratuit.',
+ 'Face à la baisse démographique, l''exécutif départemental propose la fermeture du collège de Saint-Loup-en-Test (38 élèves) et le regroupement avec l''établissement de Ville Test. Les élèves bénéficieraient d''un transport scolaire gratuit.',
  '2026-04-05', NULL, 'en_cours', 'departement', 'TEST'),
 
 -- Région
 ('TEST-REG-001', 'https://example.com/005', 'conseil_regional',
  'Schéma régional de développement économique 2026-2031',
- 'Ce schéma stratégique définit les priorités d'investissement de la Région Test pour les cinq prochaines années : transition écologique des filières industrielles, développement de l'enseignement supérieur et soutien aux TPE/PME exportatrices. Enveloppe totale : 2,4 milliards d'euros.',
+ 'Ce schéma stratégique définit les priorités d''investissement de la Région Test pour les cinq prochaines années : transition écologique des filières industrielles, développement de l''enseignement supérieur et soutien aux TPE/PME exportatrices. Enveloppe totale : 2,4 milliards d''euros.',
  '2026-03-01', '2026-03-20', 'adopte', 'region', 'TEST'),
 
 ('TEST-REG-002', 'https://example.com/006', 'conseil_regional',
  'Extension du réseau TER vers les zones rurales',
- 'Le projet prévoit la réouverture de 3 lignes ferroviaires secondaires fermées entre 1980 et 1995, permettant de desservir 47 communes rurales actuellement isolées. Coût estimé : 680 millions d'euros sur 8 ans, co-financés avec l'État.',
+ 'Le projet prévoit la réouverture de 3 lignes ferroviaires secondaires fermées entre 1980 et 1995, permettant de desservir 47 communes rurales actuellement isolées. Coût estimé : 680 millions d''euros sur 8 ans, co-financés avec l''État.',
  '2026-02-10', NULL, 'en_cours', 'region', 'TEST'),
 
 -- National
 ('TEST-NAT-001', 'https://example.com/007', 'assemblee_nationale',
- 'Loi visant à réduire l'empreinte carbone du secteur numérique',
- 'Cette proposition de loi impose aux datacenters français de s'alimenter à 80% en énergies renouvelables d'ici 2028, introduit une éco-contribution sur les services de streaming vidéo au-delà de 5h de consommation hebdomadaire, et renforce l'affichage environnemental des terminaux numériques.',
+ 'Loi visant à réduire l''empreinte carbone du secteur numérique',
+ 'Cette proposition de loi impose aux datacenters français de s''alimenter à 80% en énergies renouvelables d''ici 2028, introduit une éco-contribution sur les services de streaming vidéo au-delà de 5h de consommation hebdomadaire, et renforce l''affichage environnemental des terminaux numériques.',
  '2026-01-15', '2026-03-05', 'adopte', 'national', NULL),
 
 ('TEST-NAT-002', 'https://example.com/008', 'senat',
  'Proposition de loi sur le droit à la déconnexion numérique des salariés',
- 'Le texte renforce l'obligation de négociation dans les entreprises de plus de 50 salariés sur le droit à la déconnexion. Il prévoit des sanctions pouvant aller jusqu'à 1% de la masse salariale en cas de non-respect, et la création d'un médiateur national de la déconnexion.',
+ 'Le texte renforce l''obligation de négociation dans les entreprises de plus de 50 salariés sur le droit à la déconnexion. Il prévoit des sanctions pouvant aller jusqu''à 1% de la masse salariale en cas de non-respect, et la création d''un médiateur national de la déconnexion.',
  '2026-03-22', NULL, 'en_cours', 'national', NULL),
 
 ('TEST-NAT-003', 'https://example.com/009', 'assemblee_nationale',
- 'Réforme du financement de l'apprentissage professionnel',
- 'La réforme propose de transférer une partie du financement de l'apprentissage des branches professionnelles vers l'État, afin de réduire les inégalités d'accès selon les secteurs. Les CFA seraient financés sur la base d'un coût-contrat unifié, révisé annuellement.',
+ 'Réforme du financement de l''apprentissage professionnel',
+ 'La réforme propose de transférer une partie du financement de l''apprentissage des branches professionnelles vers l''État, afin de réduire les inégalités d''accès selon les secteurs. Les CFA seraient financés sur la base d''un coût-contrat unifié, révisé annuellement.',
  '2025-11-08', '2026-01-20', 'rejete', 'national', NULL),
 
 -- Européen
 ('TEST-EU-001', 'https://example.com/010', 'parlement_europeen',
- 'Règlement européen sur l'intelligence artificielle générative',
- 'Ce règlement classe les systèmes d'IA générative dans la catégorie "à risque limité" et impose des obligations de transparence : mention explicite de la génération par IA, registre des jeux de données d'entraînement, et droit d'opposition pour les créateurs dont les œuvres ont été utilisées sans consentement.',
+ 'Règlement européen sur l''intelligence artificielle générative',
+ 'Ce règlement classe les systèmes d''IA générative dans la catégorie "à risque limité" et impose des obligations de transparence : mention explicite de la génération par IA, registre des jeux de données d''entraînement, et droit d''opposition pour les créateurs dont les œuvres ont été utilisées sans consentement.',
  '2026-02-14', '2026-04-02', 'adopte', 'europeen', NULL),
 
 ('TEST-EU-002', 'https://example.com/011', 'parlement_europeen',
  'Directive sur la taxation minimale des géants du numérique en Europe',
- 'La directive vise à harmoniser à 15% le taux minimal d'imposition des entreprises numériques réalisant plus d'un milliard d'euros de chiffre d'affaires en Europe, en s'appuyant sur le cadre OCDE Pilier 2. Elle prévoit un mécanisme d'ajustement pour les États ayant des régimes fiscaux préférentiels.',
+ 'La directive vise à harmoniser à 15% le taux minimal d''imposition des entreprises numériques réalisant plus d''un milliard d''euros de chiffre d''affaires en Europe, en s''appuyant sur le cadre OCDE Pilier 2. Elle prévoit un mécanisme d''ajustement pour les États ayant des régimes fiscaux préférentiels.',
  '2025-09-30', NULL, 'en_cours', 'europeen', NULL)
 
 ON CONFLICT (source_id, institution) DO NOTHING;

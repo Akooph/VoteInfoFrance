@@ -16,24 +16,29 @@ export default function PropositionPageClient({ params }: { params: Promise<{ id
   const [userVote, setUserVote] = useState<VoteOption | null>(null);
   const [voting, setVoting] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
     async function load() {
-      const { data: { session } } = await supabase.auth.getSession();
-      setToken(session?.access_token ?? null);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setToken(session?.access_token ?? null);
 
-      const [prop, t] = await Promise.all([
-        api.propositions.get(id, session?.access_token),
-        api.propositions.tally(id),
-      ]);
-      setProposition(prop);
-      setTally(t);
+        const [prop, t] = await Promise.all([
+          api.propositions.get(id, session?.access_token),
+          api.propositions.tally(id),
+        ]);
+        setProposition(prop);
+        setTally(t);
 
-      if (session?.access_token) {
-        const votes = await api.votes.myVotes(session.access_token).catch(() => []);
-        const existing = votes.find((v) => v.propositionId === id);
-        if (existing) setUserVote(existing.option as VoteOption);
+        if (session?.access_token) {
+          const votes = await api.votes.myVotes(session.access_token).catch(() => []);
+          const existing = votes.find((v) => v.propositionId === id);
+          if (existing) setUserVote(existing.option as VoteOption);
+        }
+      } catch {
+        setLoadError(true);
       }
     }
     load();
@@ -62,6 +67,20 @@ export default function PropositionPageClient({ params }: { params: Promise<{ id
     } finally {
       setVoting(false);
     }
+  }
+
+  if (loadError) {
+    return (
+      <div style={{ padding: 32, textAlign: 'center' }}>
+        <p style={{ color: '#dc2626', marginBottom: 12 }}>Impossible de charger cette proposition.</p>
+        <p style={{ color: '#6b7280', fontSize: 14 }}>
+          L&apos;API est peut-être en cours de démarrage.{' '}
+          <button onClick={() => { setLoadError(false); window.location.reload(); }} style={{ color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontSize: 14 }}>
+            Réessayer
+          </button>
+        </p>
+      </div>
+    );
   }
 
   if (!proposition) {

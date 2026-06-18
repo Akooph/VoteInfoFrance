@@ -22,7 +22,19 @@ export default function OnboardingPage() {
     if (!/^\d{5}$/.test(codePostal)) { setError('Code postal invalide (5 chiffres requis).'); return; }
     setError('');
     setLoading(true);
-    const result = await api.geo.lookup(codePostal).catch(() => null);
+    let result: GeoLookupResult | null = null;
+    try {
+      result = await api.geo.lookup(codePostal);
+    } catch (err) {
+      setLoading(false);
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.includes('found') || msg.includes('introuvable')) {
+        setError('Code postal introuvable. Vérifiez et réessayez.');
+      } else {
+        setError('Erreur de connexion au serveur. Veuillez réessayer dans quelques secondes.');
+      }
+      return;
+    }
     setLoading(false);
     if (!result) { setError('Code postal introuvable. Vérifiez et réessayez.'); return; }
     setGeoResult(result);
