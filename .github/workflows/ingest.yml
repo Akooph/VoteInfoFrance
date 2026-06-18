@@ -1,8 +1,9 @@
 name: Ingest Propositions
 
 on:
-  schedule:
-    - cron: '0 */4 * * *'
+  # Disabled until ingestion adapters are production-ready
+  # schedule:
+  #   - cron: '0 */4 * * *'
   workflow_dispatch:
 
 jobs:

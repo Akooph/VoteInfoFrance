@@ -24,8 +24,13 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
+  // Sign-up disabled — redirect to sign-in for everyone
+  if (pathname === '/sign-up') {
+    return NextResponse.redirect(new URL('/sign-in?msg=registration_closed', request.url));
+  }
+
   // Logged-in users visiting auth pages → send to dashboard
-  if (user && (pathname === '/sign-in' || pathname === '/sign-up')) {
+  if (user && pathname === '/sign-in') {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

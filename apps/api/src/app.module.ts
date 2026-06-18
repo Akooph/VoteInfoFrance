@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { envValidationSchema } from './config/env.validation';
 import { GeoModule } from './modules/geo/geo.module';
@@ -23,8 +24,9 @@ import { IngestionScheduler } from './scheduler/ingestion.scheduler';
     ThrottlerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => [{
-        ttl: config.get<number>('THROTTLE_TTL', 60) * 1000,
-        limit: config.get<number>('THROTTLE_LIMIT', 100),
+        // 60 req/min per IP globally; individual endpoints may tighten this
+        ttl:   config.get<number>('THROTTLE_TTL',   60) * 1000,
+        limit: config.get<number>('THROTTLE_LIMIT', 60),
       }],
     }),
     ScheduleModule.forRoot(),
@@ -37,6 +39,10 @@ import { IngestionScheduler } from './scheduler/ingestion.scheduler';
     AuthModule,
     HealthModule,
   ],
-  providers: [IngestionScheduler],
+  providers: [
+    IngestionScheduler,
+    // Apply rate limiting to every route globally
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}

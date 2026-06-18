@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 
-export default function SignInPage() {
+function SignInForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const registrationClosed = searchParams.get('msg') === 'registration_closed';
   const supabase = createClient();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -28,6 +30,12 @@ export default function SignInPage() {
       <div style={styles.card}>
         <h1 style={styles.title}>VoteInfoFrance</h1>
         <h2 style={styles.subtitle}>Connexion</h2>
+
+        {registrationClosed && (
+          <div style={{ padding: '10px 14px', background: '#fef3c7', borderRadius: 8, border: '1px solid #fcd34d', fontSize: 13, color: '#92400e', marginBottom: 16, textAlign: 'center' }}>
+            Les inscriptions sont fermées pour le moment.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <label style={styles.label}>Email</label>
@@ -59,11 +67,18 @@ export default function SignInPage() {
         </form>
 
         <p style={styles.footer}>
-          Pas encore de compte ?{' '}
-          <a href="/sign-up" style={styles.link}>Créer un compte</a>
+          Accès réservé aux administrateurs.
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#f9fafb' }} />}>
+      <SignInForm />
+    </Suspense>
   );
 }
 

@@ -14,8 +14,8 @@ primary_region = "cdg"
 
 [http_service.concurrency]
   type = "requests"
-  hard_limit = 200
-  soft_limit = 150
+  hard_limit = 25   # shed load rather than OOM on 512 MB
+  soft_limit = 15
 
 [[vm]]
   memory = "512mb"

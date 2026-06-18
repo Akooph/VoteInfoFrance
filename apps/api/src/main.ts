@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import * as Sentry from '@sentry/node';
+import * as express from 'express';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -12,7 +13,11 @@ async function bootstrap() {
     Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.NODE_ENV ?? 'production' });
   }
 
-  const app = await NestFactory.create(AppModule);
+  // Disable built-in body parser so we can set our own size limit
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
+  // 100 KB limit — prevents oversized payload attacks
+  app.use(express.json({ limit: '100kb' }));
+  app.use(express.urlencoded({ extended: true, limit: '100kb' }));
   const config = app.get(ConfigService);
   const logger = new Logger('Bootstrap');
 
