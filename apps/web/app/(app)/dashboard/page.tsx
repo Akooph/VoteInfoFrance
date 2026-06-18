@@ -15,6 +15,7 @@ type PropositionRow = {
   geo_level: string;
   geo_code: string | null;
   date_depot: string | null;
+  is_test: boolean;
   summaries: { id: string }[];
   userVote?: string | null;
 };
@@ -86,26 +87,33 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [zipCode, setZipCode] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<GeoTab>('all');
+  const [showTest, setShowTest] = useState(() => {
+    try { return localStorage.getItem('vif_show_test') === '1'; } catch { return false; }
+  });
   const supabase = createClient();
 
   useEffect(() => {
-    load();
-  }, []);
+    load(showTest);
+  }, [showTest]);
 
-  async function load() {
+  async function load(includeTest: boolean) {
+    const cacheKey = `vif_propositions_${includeTest ? 'all' : 'live'}`;
     // 1. Try cached propositions first (instant render)
-    const cached = getCached<PropositionRow[]>('vif_propositions', 5 * 60_000);
+    const cached = getCached<PropositionRow[]>(cacheKey, 5 * 60_000);
     if (cached) {
       setPropositions(cached);
       setLoading(false);
     }
 
     // 2. Fetch propositions from Supabase (public read, no cold start)
-    const { data } = await supabase
+    let query = supabase
       .from('propositions')
-      .select('id, titre, institution, status, geo_level, geo_code, date_depot, summaries(id)')
+      .select('id, titre, institution, status, geo_level, geo_code, date_depot, is_test, summaries(id)')
       .order('date_depot', { ascending: false, nullsFirst: false })
-      .limit(30);
+      .limit(50);
+
+    if (!includeTest) query = query.eq('is_test', false);
+    const { data } = await query;
 
     const rows = (data ?? []) as PropositionRow[];
 
@@ -122,7 +130,7 @@ export default function DashboardPage() {
       rows.forEach((r) => { r.userVote = voteMap[r.id] ?? null; });
     }
 
-    setCached('vif_propositions', rows);
+    setCached(cacheKey, rows);
     setPropositions(rows);
     setLoading(false);
 
@@ -186,7 +194,26 @@ export default function DashboardPage() {
 
       {/* Header + geo-level tabs */}
       <div style={{ marginBottom: 4 }}>
-        <h1 style={{ ...s.heading, marginBottom: 16 }}>Propositions en cours</h1>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, gap: 12 }}>
+          <h1 style={{ ...s.heading, marginBottom: 0 }}>Propositions en cours</h1>
+          <button
+            onClick={() => {
+              const next = !showTest;
+              setShowTest(next);
+              try { localStorage.setItem('vif_show_test', next ? '1' : '0'); } catch {}
+            }}
+            title={showTest ? 'Masquer les données de test' : 'Afficher les données de test'}
+            style={{
+              flexShrink: 0, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6,
+              border: `1px solid ${showTest ? '#fbbf24' : '#e5e7eb'}`,
+              background: showTest ? '#fef3c7' : '#f9fafb',
+              color: showTest ? '#92400e' : '#9ca3af',
+              cursor: 'pointer', whiteSpace: 'nowrap',
+            }}
+          >
+            🧪 {showTest ? 'Test ON' : 'Test OFF'}
+          </button>
+        </div>
         <div className="vif-tabs">
           {GEO_TABS.map((t) => {
             const count = t.id === 'all' ? propositions.length : propositions.filter(p => p.geo_level === t.id).length;
@@ -243,6 +270,11 @@ export default function DashboardPage() {
                   {p.userVote && (
                     <span style={{ ...s.badge, background: '#f0fdf4', color: '#16a34a' }}>
                       ✓ {p.userVote}
+                    </span>
+                  )}
+                  {p.is_test && (
+                    <span style={{ ...s.badge, background: '#fef3c7', color: '#b45309' }}>
+                      🧪 test
                     </span>
                   )}
                   {!hasSummary && (

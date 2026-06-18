@@ -155,7 +155,7 @@ ON CONFLICT (id) DO NOTHING;
 
 -- ── TEST-NAT-001: Loi carbone numérique ──────────────────────────────────────
 INSERT INTO votes (user_id, proposition_id, option, voted_at)
-SELECT u, p.id, v, now() - (random() * interval '30 days')
+SELECT u, p.id, v::vote_option, now() - (random() * interval '30 days')
 FROM propositions p,
 (VALUES
   -- Paris: progressive, mostly POUR
@@ -202,7 +202,7 @@ ON CONFLICT (user_id, proposition_id) DO NOTHING;
 
 -- ── TEST-NAT-002: Droit à la déconnexion ─────────────────────────────────────
 INSERT INTO votes (user_id, proposition_id, option, voted_at)
-SELECT u, p.id, v, now() - (random() * interval '20 days')
+SELECT u, p.id, v::vote_option, now() - (random() * interval '20 days')
 FROM propositions p,
 (VALUES
   ('00000000-0000-0000-0000-000000000001'::uuid,'POUR'),
@@ -229,7 +229,7 @@ ON CONFLICT (user_id, proposition_id) DO NOTHING;
 
 -- ── TEST-EU-001: Règlement IA générative ──────────────────────────────────────
 INSERT INTO votes (user_id, proposition_id, option, voted_at)
-SELECT u, p.id, v, now() - (random() * interval '14 days')
+SELECT u, p.id, v::vote_option, now() - (random() * interval '14 days')
 FROM propositions p,
 (VALUES
   -- Paris: fort POUR
@@ -273,7 +273,7 @@ ON CONFLICT (user_id, proposition_id) DO NOTHING;
 
 -- ── TEST-EU-002: Taxe géants numériques ──────────────────────────────────────
 INSERT INTO votes (user_id, proposition_id, option, voted_at)
-SELECT u, p.id, v, now() - (random() * interval '10 days')
+SELECT u, p.id, v::vote_option, now() - (random() * interval '10 days')
 FROM propositions p,
 (VALUES
   ('00000000-0000-0000-0000-000000000001'::uuid,'POUR'),
@@ -298,4 +298,137 @@ FROM propositions p,
   ('00000000-0000-0000-0000-000000000030'::uuid,'POUR')
 ) AS t(u, v)
 WHERE p.source_id = 'TEST-EU-002'
+ON CONFLICT (user_id, proposition_id) DO NOTHING;
+
+-- ── 5. Votes on 00000 commune/dept/region propositions ───────────────────────
+-- Same 30 fake users can vote on any proposition regardless of their location.
+-- No map tab for commune-level, but Voter tab tally will be populated.
+
+-- TEST-COM-001: Rénovation salle des fêtes (adopted, mostly POUR)
+INSERT INTO votes (user_id, proposition_id, option, voted_at)
+SELECT u, p.id, v::vote_option, now() - (random() * interval '45 days')
+FROM propositions p,
+(VALUES
+  ('00000000-0000-0000-0000-000000000001'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000002'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000004'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000005'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000007'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000010'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000013'::uuid,'INFO'),
+  ('00000000-0000-0000-0000-000000000016'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000019'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000022'::uuid,'BLANC')
+) AS t(u, v)
+WHERE p.source_id = 'TEST-COM-001'
+ON CONFLICT (user_id, proposition_id) DO NOTHING;
+
+-- TEST-COM-002: Piste cyclable (en cours, split)
+INSERT INTO votes (user_id, proposition_id, option, voted_at)
+SELECT u, p.id, v::vote_option, now() - (random() * interval '15 days')
+FROM propositions p,
+(VALUES
+  ('00000000-0000-0000-0000-000000000001'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000003'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000006'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000008'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000011'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000014'::uuid,'INFO'),
+  ('00000000-0000-0000-0000-000000000017'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000020'::uuid,'CONTRE')
+) AS t(u, v)
+WHERE p.source_id = 'TEST-COM-002'
+ON CONFLICT (user_id, proposition_id) DO NOTHING;
+
+-- TEST-DEP-001: Rénovation énergétique (adopted, mostly POUR)
+INSERT INTO votes (user_id, proposition_id, option, voted_at)
+SELECT u, p.id, v::vote_option, now() - (random() * interval '35 days')
+FROM propositions p,
+(VALUES
+  ('00000000-0000-0000-0000-000000000001'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000002'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000004'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000007'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000009'::uuid,'INFO'),
+  ('00000000-0000-0000-0000-000000000013'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000016'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000019'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000022'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000025'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000028'::uuid,'INFO')
+) AS t(u, v)
+WHERE p.source_id = 'TEST-DEP-001'
+ON CONFLICT (user_id, proposition_id) DO NOTHING;
+
+-- TEST-DEP-002: Fermeture collège (en cours, contested)
+INSERT INTO votes (user_id, proposition_id, option, voted_at)
+SELECT u, p.id, v::vote_option, now() - (random() * interval '10 days')
+FROM propositions p,
+(VALUES
+  ('00000000-0000-0000-0000-000000000002'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000005'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000008'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000011'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000014'::uuid,'INFO'),
+  ('00000000-0000-0000-0000-000000000017'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000020'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000023'::uuid,'BLANC')
+) AS t(u, v)
+WHERE p.source_id = 'TEST-DEP-002'
+ON CONFLICT (user_id, proposition_id) DO NOTHING;
+
+-- TEST-REG-001: Schéma régional développement (adopted, POUR)
+INSERT INTO votes (user_id, proposition_id, option, voted_at)
+SELECT u, p.id, v::vote_option, now() - (random() * interval '25 days')
+FROM propositions p,
+(VALUES
+  ('00000000-0000-0000-0000-000000000001'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000004'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000007'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000010'::uuid,'INFO'),
+  ('00000000-0000-0000-0000-000000000013'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000016'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000019'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000022'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000025'::uuid,'POUR')
+) AS t(u, v)
+WHERE p.source_id = 'TEST-REG-001'
+ON CONFLICT (user_id, proposition_id) DO NOTHING;
+
+-- TEST-REG-002: Extension TER (en cours, split opinion)
+INSERT INTO votes (user_id, proposition_id, option, voted_at)
+SELECT u, p.id, v::vote_option, now() - (random() * interval '8 days')
+FROM propositions p,
+(VALUES
+  ('00000000-0000-0000-0000-000000000003'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000006'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000009'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000012'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000015'::uuid,'INFO'),
+  ('00000000-0000-0000-0000-000000000018'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000021'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000024'::uuid,'BLANC'),
+  ('00000000-0000-0000-0000-000000000027'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000030'::uuid,'CONTRE')
+) AS t(u, v)
+WHERE p.source_id = 'TEST-REG-002'
+ON CONFLICT (user_id, proposition_id) DO NOTHING;
+
+-- TEST-NAT-003: Réforme apprentissage (rejected)
+INSERT INTO votes (user_id, proposition_id, option, voted_at)
+SELECT u, p.id, v::vote_option, now() - (random() * interval '55 days')
+FROM propositions p,
+(VALUES
+  ('00000000-0000-0000-0000-000000000001'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000004'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000007'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000010'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000013'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000016'::uuid,'INFO'),
+  ('00000000-0000-0000-0000-000000000019'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000022'::uuid,'POUR'),
+  ('00000000-0000-0000-0000-000000000025'::uuid,'CONTRE'),
+  ('00000000-0000-0000-0000-000000000028'::uuid,'CONTRE')
+) AS t(u, v)
+WHERE p.source_id = 'TEST-NAT-003'
 ON CONFLICT (user_id, proposition_id) DO NOTHING;
