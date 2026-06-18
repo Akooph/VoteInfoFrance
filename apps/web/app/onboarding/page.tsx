@@ -28,7 +28,7 @@ export default function OnboardingPage() {
     } catch (err) {
       setLoading(false);
       const msg = err instanceof Error ? err.message : '';
-      if (msg.includes('found') || msg.includes('introuvable')) {
+      if (msg.includes('found') || msg.includes('introuvable') || msg.includes('No commune')) {
         setError('Code postal introuvable. Vérifiez et réessayez.');
       } else {
         setError('Erreur de connexion au serveur. Veuillez réessayer dans quelques secondes.');
@@ -43,9 +43,16 @@ export default function OnboardingPage() {
 
   async function handleConfirm() {
     setLoading(true);
+
+    // Always save to cookie (works for anonymous + logged-in users)
+    document.cookie = `vif_zip=${codePostal}; max-age=2592000; path=/; SameSite=Lax`;
+
+    // If logged in, also persist to profile
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { router.replace('/sign-in'); return; }
-    await api.profile.update(codePostal, session.access_token);
+    if (session?.access_token) {
+      await api.profile.update(codePostal, session.access_token).catch(() => null);
+    }
+
     setLoading(false);
     router.replace('/dashboard');
     router.refresh();
@@ -82,6 +89,7 @@ export default function OnboardingPage() {
             <button type="submit" disabled={loading || codePostal.length !== 5} style={styles.button}>
               {loading ? 'Recherche...' : 'Trouver ma commune →'}
             </button>
+            <a href="/dashboard" style={styles.skipLink}>Continuer sans localisation</a>
           </form>
         )}
 
@@ -154,6 +162,7 @@ const styles: Record<string, React.CSSProperties> = {
   error: { color: '#dc2626', fontSize: 13, marginBottom: 8 },
   button: { padding: '12px', borderRadius: 8, background: '#1d4ed8', color: '#fff', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', width: '100%', marginBottom: 8 },
   secondaryButton: { padding: '10px', borderRadius: 8, background: 'transparent', color: '#6b7280', fontWeight: 500, fontSize: 14, border: '1px solid #e5e7eb', cursor: 'pointer', width: '100%' },
+  skipLink: { display: 'block', textAlign: 'center', marginTop: 8, fontSize: 13, color: '#9ca3af', textDecoration: 'none' },
   geoCard: { background: '#f8fafc', borderRadius: 10, padding: 16, marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 10 },
   geoRow: { display: 'flex', alignItems: 'center', gap: 12 },
   geoIcon: { fontSize: 20, width: 28, textAlign: 'center' },

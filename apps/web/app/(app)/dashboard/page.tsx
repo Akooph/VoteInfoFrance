@@ -6,6 +6,11 @@ import { createClient } from '@/lib/supabase';
 import type { PaginatedPropositions, GeoLookupResult } from '@vif/types';
 import { GeoLevelBadge } from '@vif/ui';
 
+function getZipCookie(): string | null {
+  const match = document.cookie.match(/(?:^|;\s*)vif_zip=([0-9]{5})(?:;|$)/);
+  return match?.[1] ?? null;
+}
+
 export default function DashboardPage() {
   const [propositions, setPropositions] = useState<PaginatedPropositions | null>(null);
   const [geoResult, setGeoResult] = useState<GeoLookupResult | null>(null);
@@ -22,8 +27,9 @@ export default function DashboardPage() {
         api.propositions.list({ page: 1, limit: 20, token }).catch(() => null),
       ]);
 
-      if (profile?.codePostal) {
-        const geo = await api.geo.lookup(profile.codePostal).catch(() => null);
+      const zipCode = profile?.codePostal ?? getZipCookie();
+      if (zipCode) {
+        const geo = await api.geo.lookup(zipCode).catch(() => null);
         setGeoResult(geo);
       }
 
@@ -43,7 +49,7 @@ export default function DashboardPage() {
 
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: '24px 16px' }}>
-      {geoResult && (
+      {geoResult ? (
         <div style={{ marginBottom: 24, padding: 16, background: '#eff6ff', borderRadius: 8, border: '1px solid #bfdbfe' }}>
           <div style={{ fontWeight: 600, marginBottom: 8, color: '#1d4ed8' }}>Votre espace civique</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: 14 }}>
@@ -57,6 +63,13 @@ export default function DashboardPage() {
             <span>·</span>
             <span>Europe</span>
           </div>
+        </div>
+      ) : (
+        <div style={{ marginBottom: 24, padding: 16, background: '#f9fafb', borderRadius: 8, border: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: 14, color: '#6b7280' }}>Personnalisez votre vue en renseignant votre code postal.</span>
+          <a href="/onboarding" style={{ fontSize: 14, color: '#1d4ed8', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', marginLeft: 12 }}>
+            Localiser →
+          </a>
         </div>
       )}
 
