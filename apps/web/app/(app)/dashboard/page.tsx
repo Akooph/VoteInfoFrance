@@ -70,11 +70,22 @@ function getZipCookie(): string | null {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
+const GEO_TABS = [
+  { id: 'all',         label: 'Tous' },
+  { id: 'commune',     label: 'Commune' },
+  { id: 'departement', label: 'Département' },
+  { id: 'region',      label: 'Région' },
+  { id: 'national',    label: 'National' },
+  { id: 'europeen',    label: 'Européen' },
+] as const;
+type GeoTab = (typeof GEO_TABS)[number]['id'];
+
 export default function DashboardPage() {
   const [propositions, setPropositions] = useState<PropositionRow[]>([]);
   const [geoResult, setGeoResult] = useState<GeoLookupResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [zipCode, setZipCode] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<GeoTab>('all');
   const supabase = createClient();
 
   useEffect(() => {
@@ -136,6 +147,7 @@ export default function DashboardPage() {
     }
   }
 
+  const filtered = activeTab === 'all' ? propositions : propositions.filter(p => p.geo_level === activeTab);
   const hasPropositions = propositions.length > 0;
 
   return (
@@ -172,12 +184,26 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 20 }}>
-        <h1 style={s.heading}>Propositions en cours</h1>
-        {hasPropositions && (
-          <span style={s.count}>{propositions.length} proposition{propositions.length > 1 ? 's' : ''}</span>
-        )}
+      {/* Header + geo-level tabs */}
+      <div style={{ marginBottom: 4 }}>
+        <h1 style={{ ...s.heading, marginBottom: 16 }}>Propositions en cours</h1>
+        <div style={{ display: 'flex', gap: 0, borderBottom: '2px solid #e5e7eb', overflowX: 'auto' }}>
+          {GEO_TABS.map((t) => {
+            const count = t.id === 'all' ? propositions.length : propositions.filter(p => p.geo_level === t.id).length;
+            return (
+              <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
+                padding: '8px 14px', fontSize: 13, fontWeight: activeTab === t.id ? 700 : 500,
+                color: activeTab === t.id ? '#1d4ed8' : '#6b7280',
+                background: 'none', border: 'none',
+                borderBottom: `2px solid ${activeTab === t.id ? '#1d4ed8' : 'transparent'}`,
+                marginBottom: -2, cursor: 'pointer', whiteSpace: 'nowrap',
+              }}>
+                {t.label}
+                {count > 0 && <span style={{ marginLeft: 5, fontSize: 11, background: activeTab === t.id ? '#dbeafe' : '#f3f4f6', color: activeTab === t.id ? '#1d4ed8' : '#9ca3af', padding: '1px 6px', borderRadius: 10, fontWeight: 600 }}>{count}</span>}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Loading skeleton */}
@@ -190,18 +216,22 @@ export default function DashboardPage() {
       )}
 
       {/* Empty state */}
-      {!loading && !hasPropositions && (
+      {!loading && filtered.length === 0 && (
         <div style={s.empty}>
           <div style={{ fontSize: 36, marginBottom: 12 }}>📋</div>
-          <div style={{ fontWeight: 600, marginBottom: 4, color: '#374151' }}>Aucune proposition pour le moment</div>
-          <div style={{ fontSize: 14, color: '#9ca3af' }}>Les données sont en cours d&apos;importation.</div>
+          <div style={{ fontWeight: 600, marginBottom: 4, color: '#374151' }}>
+            {activeTab === 'all' ? 'Aucune proposition pour le moment' : `Aucune proposition au niveau ${GEO_TABS.find(t => t.id === activeTab)?.label}`}
+          </div>
+          <div style={{ fontSize: 14, color: '#9ca3af' }}>
+            {activeTab === 'all' ? 'Les données sont en cours d\'importation.' : 'Essayez un autre niveau géographique.'}
+          </div>
         </div>
       )}
 
       {/* Proposition cards */}
-      {hasPropositions && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {propositions.map((p) => {
+      {filtered.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
+          {filtered.map((p) => {
             const geoStyle = GEO_LEVEL_COLORS[p.geo_level] ?? { bg: '#f3f4f6', color: '#374151' };
             const stStyle = STATUS_COLORS[p.status] ?? { bg: '#f3f4f6', color: '#374151' };
             const hasSummary = p.summaries?.length > 0;
