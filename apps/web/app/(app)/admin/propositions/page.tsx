@@ -13,11 +13,16 @@ async function deleteProposition(formData: FormData) {
   revalidatePath('/admin/propositions');
 }
 
-export default async function PropositionsPage({ searchParams }: { searchParams: Promise<{ q?: string; institution?: string; geo_level?: string }> }) {
+export default async function PropositionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; institution?: string; geo_level?: string; geo_code?: string }>;
+}) {
   const db = createSupabaseAdminClient();
   const params = await searchParams;
 
-  let query = db.from('propositions')
+  let query = db
+    .from('propositions')
     .select('id, titre, institution, geo_level, geo_code, status, date_depot', { count: 'exact' })
     .order('date_depot', { ascending: false })
     .limit(50);
@@ -25,12 +30,13 @@ export default async function PropositionsPage({ searchParams }: { searchParams:
   if (params.q) query = query.ilike('titre', `%${params.q}%`);
   if (params.institution) query = query.eq('institution', params.institution);
   if (params.geo_level) query = query.eq('geo_level', params.geo_level);
+  if (params.geo_code) query = query.eq('geo_code', params.geo_code);
 
   const { data: propositions, count, error } = await query;
   if (error) console.error('[admin/propositions] Supabase error:', error.message);
 
   const GEO_LEVELS = ['national', 'europeen', 'region', 'departement', 'commune'];
-  const INSTITUTIONS = ['assemblee_nationale', 'senat', 'parlement_europeen', 'conseil_regional', 'conseil_municipal'];
+  const INSTITUTIONS = ['assemblee_nationale', 'senat', 'parlement_europeen', 'conseil_regional', 'conseil_departemental', 'conseil_municipal'];
 
   return (
     <div>
@@ -40,7 +46,7 @@ export default async function PropositionsPage({ searchParams }: { searchParams:
       {/* Filters */}
       <form method="GET" style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
         <input name="q" defaultValue={params.q} placeholder="Rechercher dans les titres…"
-          style={{ border: '1px solid #d1d5db', borderRadius: 6, padding: '8px 12px', fontSize: 14, flex: 1, minWidth: 200 }} />
+          style={{ border: '1px solid #d1d5db', borderRadius: 6, padding: '8px 12px', fontSize: 14, flex: 1, minWidth: 160 }} />
         <select name="institution" defaultValue={params.institution ?? ''}
           style={{ border: '1px solid #d1d5db', borderRadius: 6, padding: '8px 12px', fontSize: 14 }}>
           <option value="">Toutes institutions</option>
@@ -51,6 +57,8 @@ export default async function PropositionsPage({ searchParams }: { searchParams:
           <option value="">Tous niveaux</option>
           {GEO_LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
         </select>
+        <input name="geo_code" defaultValue={params.geo_code} placeholder="Code géo (ex: 00000)"
+          style={{ border: '1px solid #d1d5db', borderRadius: 6, padding: '8px 12px', fontSize: 14, width: 160 }} />
         <button type="submit"
           style={{ background: '#1d4ed8', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 16px', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
           Filtrer
@@ -78,8 +86,7 @@ export default async function PropositionsPage({ searchParams }: { searchParams:
                 <td style={{ padding: '10px 12px 10px 0', color: '#9ca3af', fontFamily: 'monospace', fontSize: 12 }}>{p.geo_code ?? '—'}</td>
                 <td style={{ padding: '10px 12px 10px 0', color: '#9ca3af', fontSize: 12 }}>{p.date_depot ? new Date(p.date_depot).toLocaleDateString('fr-FR') : '—'}</td>
                 <td style={{ padding: '10px 0' }}>
-                  <form action={deleteProposition} style={{ display: 'inline' }}
-                    onSubmit={(e) => { if (!confirm('Supprimer cette proposition et ses votes ?')) e.preventDefault(); }}>
+                  <form action={deleteProposition} style={{ display: 'inline' }}>
                     <input type="hidden" name="id" value={p.id} />
                     <button type="submit"
                       style={{ background: 'none', border: '1px solid #fca5a5', borderRadius: 6, padding: '3px 8px', fontSize: 11, cursor: 'pointer', color: '#dc2626' }}>
@@ -91,7 +98,9 @@ export default async function PropositionsPage({ searchParams }: { searchParams:
             ))}
           </tbody>
         </table>
-        {!propositions?.length && <p style={{ color: '#6b7280', fontSize: 14, textAlign: 'center', padding: '24px 0' }}>Aucune proposition trouvée.</p>}
+        {!propositions?.length && (
+          <p style={{ color: '#6b7280', fontSize: 14, textAlign: 'center', padding: '24px 0' }}>Aucune proposition trouvée.</p>
+        )}
       </div>
     </div>
   );

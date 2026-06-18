@@ -23,6 +23,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3001',
+      'https://voteinfofrance-web.fly.dev',
       'https://voteinfofrance.vercel.app',
       'https://akooph.github.io',
     ],
