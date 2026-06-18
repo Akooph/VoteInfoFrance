@@ -141,7 +141,9 @@ INSERT INTO user_profiles (id, commune_insee, role) VALUES
   ('00000000-0000-0000-0000-000000000028','76540','user'),
   ('00000000-0000-0000-0000-000000000029','76540','user'),
   ('00000000-0000-0000-0000-000000000030','76540','user')
-ON CONFLICT (id) DO NOTHING;
+-- The handle_new_user trigger creates a bare profile row on auth.users insert.
+-- DO UPDATE ensures commune_insee is actually set (DO NOTHING would leave it NULL).
+ON CONFLICT (id) DO UPDATE SET commune_insee = EXCLUDED.commune_insee, role = EXCLUDED.role;
 
 -- ── 4. Votes ──────────────────────────────────────────────────────────────────
 -- Each INSERT looks up the proposition by source_id to get the real UUID.
