@@ -29,8 +29,9 @@ export function NavHeader() {
     <header style={styles.header}>
       <a href="/dashboard" style={styles.brand}>VoteInfoFrance</a>
       <nav style={styles.nav}>
-        <a href="/dashboard" style={styles.link}>Actualités</a>
+        <a href="/dashboard" style={styles.link}>Propositions</a>
         <a href="/map" style={styles.link}>Carte</a>
+        <a href="/onboarding" style={styles.link}>Mon code postal</a>
         {isLoggedIn ? (
           <button onClick={handleSignOut} style={styles.authBtn}>Déconnexion</button>
         ) : (

@@ -17,3 +17,15 @@ body {
   background: #f9fafb;
   color: #111827;
 }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+a[href] {
+  transition: opacity 0.1s;
+}
+a[href]:hover {
+  opacity: 0.8;
+}
