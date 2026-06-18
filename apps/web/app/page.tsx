@@ -1,6 +1,4 @@
-import dynamic from 'next/dynamic';
-
-const MapLanding = dynamic(() => import('@/components/map/map-landing'), { ssr: false });
+import MapLandingWrapper from '@/components/map/map-landing-wrapper';
 
 const APK_URL = 'https://github.com/Akooph/VoteInfoFrance/releases/download/android-latest/voteinfofrance.apk';
 
@@ -47,7 +45,7 @@ export default function LandingPage() {
         <p style={{ textAlign: 'center', color: '#6b7280', marginBottom: 32, fontSize: 16 }}>
           Cliquez sur un département pour voir les propositions en cours.
         </p>
-        <MapLanding />
+        <MapLandingWrapper />
       </section>
 
       {/* How it works */}

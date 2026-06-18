@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
+import { api } from '@/lib/api-client';
 import { lookupByZip } from '@/lib/geo';
 import type { GeoLookupResult } from '@vif/types';
 
