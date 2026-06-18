@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api-client';
+import { lookupByZip } from '@/lib/geo';
 import { createClient } from '@/lib/supabase';
 import type { PaginatedPropositions, GeoLookupResult } from '@vif/types';
 import { GeoLevelBadge } from '@vif/ui';
@@ -29,7 +30,7 @@ export default function DashboardPage() {
 
       const zipCode = profile?.codePostal ?? getZipCookie();
       if (zipCode) {
-        const geo = await api.geo.lookup(zipCode).catch(() => null);
+        const geo = await lookupByZip(zipCode).catch(() => null);
         setGeoResult(geo);
       }
 

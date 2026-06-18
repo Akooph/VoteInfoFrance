@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
-import { api } from '@/lib/api-client';
+import { lookupByZip } from '@/lib/geo';
 import type { GeoLookupResult } from '@vif/types';
 
 type Step = 'zip' | 'confirm';
@@ -24,15 +24,11 @@ export default function OnboardingPage() {
     setLoading(true);
     let result: GeoLookupResult | null = null;
     try {
-      result = await api.geo.lookup(codePostal);
+      result = await lookupByZip(codePostal);
     } catch (err) {
       setLoading(false);
       const msg = err instanceof Error ? err.message : '';
-      if (msg.includes('found') || msg.includes('introuvable') || msg.includes('No commune')) {
-        setError('Code postal introuvable. Vérifiez et réessayez.');
-      } else {
-        setError('Erreur de connexion au serveur. Veuillez réessayer dans quelques secondes.');
-      }
+      setError(msg.includes('introuvable') ? 'Code postal introuvable. Vérifiez et réessayez.' : 'Erreur inattendue. Réessayez.');
       return;
     }
     setLoading(false);
