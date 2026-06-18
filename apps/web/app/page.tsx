@@ -7,31 +7,30 @@ export default function LandingPage() {
     <main style={{ fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif', color: '#111827' }}>
 
       {/* Nav */}
-      <nav style={{ background: '#1d4ed8', padding: '0 24px', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <nav style={{ background: '#1d4ed8', padding: '0 max(16px, env(safe-area-inset-left))', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <span style={{ color: '#fff', fontWeight: 800, fontSize: 18 }}>VoteInfoFrance</span>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <a href="/dashboard" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, textDecoration: 'none', fontWeight: 500 }}>Propositions</a>
-          <a href="/onboarding" style={{ color: '#fff', fontSize: 14, fontWeight: 700, background: 'rgba(255,255,255,0.2)', padding: '5px 14px', borderRadius: 6, textDecoration: 'none' }}>Mon code postal</a>
-          <a href="/sign-in" style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, textDecoration: 'none', padding: '5px 0' }}>Connexion</a>
+          <a href="/onboarding" style={{ color: '#fff', fontSize: 13, fontWeight: 700, background: 'rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: 6, textDecoration: 'none', minHeight: 32, display: 'flex', alignItems: 'center' }}>Code postal</a>
         </div>
       </nav>
 
       {/* Hero */}
-      <header style={{ background: '#1d4ed8', color: '#fff', padding: '60px 24px 80px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: 42, fontWeight: 800, margin: '0 0 16px', letterSpacing: -1 }}>
+      <header style={{ background: '#1d4ed8', color: '#fff', padding: 'clamp(32px, 8vw, 72px) 20px clamp(40px, 8vw, 80px)', textAlign: 'center' }}>
+        <h1 style={{ fontSize: 'clamp(26px, 8vw, 46px)', fontWeight: 800, margin: '0 0 14px', letterSpacing: -0.5, lineHeight: 1.1 }}>
           VoteInfoFrance
         </h1>
-        <p style={{ fontSize: 20, opacity: 0.9, maxWidth: 560, margin: '0 auto 40px' }}>
+        <p style={{ fontSize: 'clamp(15px, 4vw, 20px)', opacity: 0.9, maxWidth: 560, margin: '0 auto 32px', lineHeight: 1.55 }}>
           Restez informé des décisions politiques à tous les niveaux —
           commune, département, région, national et européen.
         </p>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', padding: '0 8px' }}>
           <a href="/onboarding"
-            style={{ padding: '14px 28px', background: '#fff', color: '#1d4ed8', borderRadius: 8, fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+            style={{ padding: '13px 24px', background: '#fff', color: '#1d4ed8', borderRadius: 8, fontWeight: 700, fontSize: 15, textDecoration: 'none', minHeight: 44, display: 'flex', alignItems: 'center' }}>
             Entrer mon code postal →
           </a>
           <a href={APK_URL}
-            style={{ padding: '14px 28px', background: 'rgba(255,255,255,0.15)', color: '#fff', borderRadius: 8, fontWeight: 600, fontSize: 15, textDecoration: 'none' }}>
+            style={{ padding: '13px 24px', background: 'rgba(255,255,255,0.15)', color: '#fff', borderRadius: 8, fontWeight: 600, fontSize: 15, textDecoration: 'none', minHeight: 44, display: 'flex', alignItems: 'center' }}>
             ⬇ APK Android
           </a>
         </div>

@@ -177,7 +177,7 @@ export default function PropositionPageClient({ params }: { params: Promise<{ id
 
   if (!proposition) {
     return (
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '24px 16px' }}>
+      <div style={{ maxWidth: 720, margin: '0 auto' }} className="vif-page">
         <div style={{ height: 14, width: 80, background: '#e5e7eb', borderRadius: 4, marginBottom: 20 }} />
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
           {[60, 90, 120].map((w) => <div key={w} style={{ height: 20, width: w, background: '#e5e7eb', borderRadius: 4 }} />)}
@@ -210,7 +210,7 @@ export default function PropositionPageClient({ params }: { params: Promise<{ id
   ];
 
   return (
-    <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px' }}>
+    <div style={{ maxWidth: 720, margin: '0 auto' }} className="vif-page">
 
       {/* Back */}
       <a href="/dashboard" style={{ fontSize: 13, color: '#9ca3af', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginBottom: 18 }}>
@@ -239,14 +239,9 @@ export default function PropositionPageClient({ params }: { params: Promise<{ id
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '2px solid #e5e7eb', marginBottom: 24, overflowX: 'auto' }}>
+      <div className="vif-tabs" style={{ marginBottom: 24 }}>
         {TABS.map((t) => (
-          <button key={t.id} onClick={() => setTab(t.id)} style={{
-            padding: '10px 16px', fontSize: 14, fontWeight: tab === t.id ? 700 : 500,
-            color: tab === t.id ? '#1d4ed8' : '#6b7280', background: 'none', border: 'none',
-            borderBottom: `2px solid ${tab === t.id ? '#1d4ed8' : 'transparent'}`,
-            marginBottom: -2, cursor: 'pointer', whiteSpace: 'nowrap',
-          }}>
+          <button key={t.id} onClick={() => setTab(t.id)} className={`vif-tab-btn${tab === t.id ? ' active' : ''}`}>
             {t.label}
           </button>
         ))}
@@ -259,7 +254,7 @@ export default function PropositionPageClient({ params }: { params: Promise<{ id
             <div style={{ padding: '18px 20px', background: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0', marginBottom: 16, lineHeight: 1.75, color: '#334155', fontSize: 15 }}>
               {summary.resume}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12 }}>
+            <div className="vif-two-col">
               <div style={{ padding: '14px 16px', background: '#f0fdf4', borderRadius: 10, border: '1px solid #bbf7d0' }}>
                 <div style={{ fontWeight: 700, color: '#15803d', marginBottom: 8, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.6 }}>Arguments pour</div>
                 <div style={{ fontSize: 14, color: '#166534', lineHeight: 1.65, whiteSpace: 'pre-line' }}>{summary.pour}</div>
@@ -297,7 +292,7 @@ export default function PropositionPageClient({ params }: { params: Promise<{ id
                 <span style={{ color: '#9ca3af', fontSize: 14 }}> pour voter.</span>
               </div>
             ) : (
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <div className="vif-vote-grid">
                 {VOTE_OPTIONS.map((opt) => (
                   <button
                     key={opt}

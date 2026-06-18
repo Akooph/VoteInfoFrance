@@ -105,7 +105,7 @@ export default function MapLanding() {
   }, [selected]);
 
   return (
-    <div style={{ position: 'relative', height: 520, borderRadius: 16, overflow: 'hidden' }}>
+    <div style={{ position: 'relative', height: 'clamp(300px, 55vw, 520px)', borderRadius: 16, overflow: 'hidden' }}>
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
 
       {selected && (

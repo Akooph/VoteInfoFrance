@@ -4,7 +4,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <NavHeader />
-      <main>{children}</main>
+      <main className="vif-app-main">{children}</main>
     </>
   );
 }

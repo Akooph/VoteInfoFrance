@@ -1,14 +1,26 @@
 @import "tailwindcss";
 
+/* ── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
-  --color-pour: #16a34a;
-  --color-contre: #dc2626;
-  --color-info: #d97706;
-  --color-blanc: #6b7280;
+  --color-brand:   #1d4ed8;
+  --color-pour:    #16a34a;
+  --color-contre:  #dc2626;
+  --color-info:    #d97706;
+  --color-blanc:   #6b7280;
+
+  --nav-top-h:    52px;
+  --nav-bottom-h: 60px;
+  --safe-left:    env(safe-area-inset-left,  0px);
+  --safe-right:   env(safe-area-inset-right, 0px);
+  --safe-bottom:  env(safe-area-inset-bottom, 0px);
 }
 
-* {
-  box-sizing: border-box;
+/* ── Base reset ────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -16,16 +28,188 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
   background: #f9fafb;
   color: #111827;
+  /* prevent horizontal scroll from overflowing elements */
+  overflow-x: hidden;
 }
 
+/* ── Page containers ───────────────────────────────────────────────────────── */
+
+/* Generic centered page content */
+.vif-page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 20px max(16px, var(--safe-right)) 20px max(16px, var(--safe-left));
+}
+
+/* App pages push content above bottom nav on mobile */
+.vif-app-main {
+  min-height: calc(100vh - var(--nav-top-h));
+}
+
+/* ── Top header ────────────────────────────────────────────────────────────── */
+.vif-top-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--color-brand);
+  height: var(--nav-top-h);
+  padding: 0 max(16px, var(--safe-right)) 0 max(16px, var(--safe-left));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Desktop nav links — always visible above 640 */
+.vif-nav-desktop { display: flex; align-items: center; gap: 16px; }
+
+/* Mobile-only auth shortcut in top right */
+.vif-nav-mobile { display: none; }
+
+/* ── Bottom tab bar ────────────────────────────────────────────────────────── */
+.vif-bottom-nav {
+  display: none; /* hidden on desktop */
+}
+
+/* ── Scrollable tab row (dashboard + proposition) ──────────────────────────── */
+.vif-tabs {
+  display: flex;
+  border-bottom: 2px solid #e5e7eb;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  gap: 0;
+}
+.vif-tabs::-webkit-scrollbar { display: none; }
+
+.vif-tab-btn {
+  flex-shrink: 0;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s;
+  /* minimum tap target */
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.vif-tab-btn.active {
+  color: var(--color-brand);
+  font-weight: 700;
+  border-bottom-color: var(--color-brand);
+}
+
+/* ── Vote buttons ──────────────────────────────────────────────────────────── */
+.vif-vote-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ── Pour/contre grid ──────────────────────────────────────────────────────── */
+.vif-two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+/* ── Animations ────────────────────────────────────────────────────────────── */
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
+  0%   { background-position:  200% 0; }
   100% { background-position: -200% 0; }
 }
 
-a[href] {
-  transition: opacity 0.1s;
+/* ── Link hover ────────────────────────────────────────────────────────────── */
+a[href] { transition: opacity 0.1s; }
+a[href]:hover { opacity: 0.8; }
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* MOBILE  ≤ 640px                                                            */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* Hide desktop links; show mobile alternatives */
+  .vif-nav-desktop { display: none; }
+  .vif-nav-mobile  { display: flex; align-items: center; }
+
+  /* Bottom tab bar */
+  .vif-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(var(--nav-bottom-h) + var(--safe-bottom));
+    padding-bottom: var(--safe-bottom);
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 50;
+  }
+
+  .vif-bottom-nav a,
+  .vif-bottom-nav button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    min-width: 64px;
+    min-height: 44px;
+    padding: 6px 8px;
+    transition: color 0.15s;
+    letter-spacing: 0.2px;
+  }
+
+  .vif-bottom-nav a.active,
+  .vif-bottom-nav button.active {
+    color: var(--color-brand);
+  }
+
+  .vif-bottom-nav .nav-icon { font-size: 22px; line-height: 1; }
+
+  /* Push page content above the tab bar */
+  .vif-app-main {
+    padding-bottom: calc(var(--nav-bottom-h) + var(--safe-bottom));
+  }
+
+  /* Smaller page padding on mobile */
+  .vif-page {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  /* Vote buttons: 2×2 grid on narrow screens */
+  .vif-vote-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Tab buttons smaller text on mobile */
+  .vif-tab-btn {
+    font-size: 13px;
+    padding: 8px 13px;
+  }
 }
-a[href]:hover {
-  opacity: 0.8;
+
+/* Prevent map from hiding behind bottom nav on mobile */
+@media (max-width: 640px) {
+  .vif-map-fullscreen {
+    height: calc(100vh - var(--nav-top-h) - var(--nav-bottom-h) - var(--safe-bottom)) !important;
+  }
 }

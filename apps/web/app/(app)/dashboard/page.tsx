@@ -151,7 +151,7 @@ export default function DashboardPage() {
   const hasPropositions = propositions.length > 0;
 
   return (
-    <div style={{ maxWidth: 820, margin: '0 auto', padding: '28px 16px' }}>
+    <div className="vif-page">
 
       {/* Geo context banner */}
       {geoResult ? (
@@ -187,17 +187,11 @@ export default function DashboardPage() {
       {/* Header + geo-level tabs */}
       <div style={{ marginBottom: 4 }}>
         <h1 style={{ ...s.heading, marginBottom: 16 }}>Propositions en cours</h1>
-        <div style={{ display: 'flex', gap: 0, borderBottom: '2px solid #e5e7eb', overflowX: 'auto' }}>
+        <div className="vif-tabs">
           {GEO_TABS.map((t) => {
             const count = t.id === 'all' ? propositions.length : propositions.filter(p => p.geo_level === t.id).length;
             return (
-              <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
-                padding: '8px 14px', fontSize: 13, fontWeight: activeTab === t.id ? 700 : 500,
-                color: activeTab === t.id ? '#1d4ed8' : '#6b7280',
-                background: 'none', border: 'none',
-                borderBottom: `2px solid ${activeTab === t.id ? '#1d4ed8' : 'transparent'}`,
-                marginBottom: -2, cursor: 'pointer', whiteSpace: 'nowrap',
-              }}>
+              <button key={t.id} onClick={() => setActiveTab(t.id)} className={`vif-tab-btn${activeTab === t.id ? ' active' : ''}`}>
                 {t.label}
                 {count > 0 && <span style={{ marginLeft: 5, fontSize: 11, background: activeTab === t.id ? '#dbeafe' : '#f3f4f6', color: activeTab === t.id ? '#1d4ed8' : '#9ca3af', padding: '1px 6px', borderRadius: 10, fontWeight: 600 }}>{count}</span>}
               </button>

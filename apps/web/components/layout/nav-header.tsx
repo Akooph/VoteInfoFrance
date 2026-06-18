@@ -1,21 +1,24 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
+
+const NAV_TABS = [
+  { href: '/dashboard', label: 'Propositions', icon: '📋' },
+  { href: '/map',       label: 'Carte',        icon: '🗺️' },
+  { href: '/onboarding', label: 'Localisation', icon: '📍' },
+] as const;
 
 export function NavHeader() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsLoggedIn(!!session);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session);
-    });
+    supabase.auth.getSession().then(({ data: { session } }) => setIsLoggedIn(!!session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setIsLoggedIn(!!session));
     return () => subscription.unsubscribe();
   }, []);
 
@@ -25,28 +28,76 @@ export function NavHeader() {
     router.refresh();
   }
 
+  function isActive(href: string) {
+    if (href === '/dashboard') return pathname === '/dashboard' || pathname.startsWith('/proposition');
+    return pathname === href || pathname.startsWith(href + '/');
+  }
+
   return (
-    <header style={styles.header}>
-      <a href="/dashboard" style={styles.brand}>VoteInfoFrance</a>
-      <nav style={styles.nav}>
-        <a href="/dashboard" style={styles.link}>Propositions</a>
-        <a href="/map" style={styles.link}>Carte</a>
-        <a href="/onboarding" style={styles.link}>Mon code postal</a>
+    <>
+      {/* ── Top bar ─────────────────────────────────────────────────── */}
+      <header className="vif-top-header">
+        <a href="/dashboard" style={{ color: '#fff', fontWeight: 800, fontSize: 18, textDecoration: 'none', letterSpacing: -0.3 }}>
+          VoteInfoFrance
+        </a>
+
+        {/* Desktop nav */}
+        <nav className="vif-nav-desktop">
+          {NAV_TABS.map((t) => (
+            <a key={t.href} href={t.href} style={{
+              color: isActive(t.href) ? '#fff' : 'rgba(255,255,255,0.72)',
+              fontSize: 14,
+              fontWeight: isActive(t.href) ? 700 : 500,
+              textDecoration: 'none',
+            }}>
+              {t.label}
+            </a>
+          ))}
+          {isLoggedIn ? (
+            <button onClick={handleSignOut} style={{ color: 'rgba(255,255,255,0.72)', fontSize: 13, background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 500 }}>
+              Déconnexion
+            </button>
+          ) : (
+            <a href="/sign-in" style={{ color: '#fff', fontSize: 13, fontWeight: 700, textDecoration: 'none', background: 'rgba(255,255,255,0.18)', padding: '5px 14px', borderRadius: 6 }}>
+              Connexion
+            </a>
+          )}
+        </nav>
+
+        {/* Mobile: auth shortcut in top-right */}
+        <div className="vif-nav-mobile">
+          {isLoggedIn ? (
+            <button onClick={handleSignOut} style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, background: 'transparent', border: 'none', cursor: 'pointer', padding: '8px 4px', minHeight: 44 }}>
+              Quitter
+            </button>
+          ) : (
+            <a href="/sign-in" style={{ color: '#fff', fontSize: 13, fontWeight: 700, textDecoration: 'none', padding: '8px 4px', minHeight: 44, display: 'flex', alignItems: 'center' }}>
+              Connexion
+            </a>
+          )}
+        </div>
+      </header>
+
+      {/* ── Bottom tab bar (mobile only) ─────────────────────────────── */}
+      <nav className="vif-bottom-nav" aria-label="Navigation principale">
+        {NAV_TABS.map((t) => (
+          <a key={t.href} href={t.href} className={isActive(t.href) ? 'active' : ''}>
+            <span className="nav-icon">{t.icon}</span>
+            <span>{t.label}</span>
+          </a>
+        ))}
         {isLoggedIn ? (
-          <button onClick={handleSignOut} style={styles.authBtn}>Déconnexion</button>
+          <button onClick={handleSignOut} style={{ color: '#9ca3af' }}>
+            <span className="nav-icon">🚪</span>
+            <span>Quitter</span>
+          </button>
         ) : (
-          <a href="/sign-in" style={styles.authLink}>Connexion</a>
+          <a href="/sign-in" className={pathname === '/sign-in' ? 'active' : ''}>
+            <span className="nav-icon">👤</span>
+            <span>Connexion</span>
+          </a>
         )}
       </nav>
-    </header>
+    </>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  header: { background: '#1d4ed8', padding: '0 20px', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  brand: { color: '#fff', fontWeight: 800, fontSize: 18, textDecoration: 'none' },
-  nav: { display: 'flex', alignItems: 'center', gap: 16 },
-  link: { color: 'rgba(255,255,255,0.85)', fontSize: 14, textDecoration: 'none', fontWeight: 500 },
-  authBtn: { color: 'rgba(255,255,255,0.7)', fontSize: 13, background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 500 },
-  authLink: { color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 600, textDecoration: 'none', background: 'rgba(255,255,255,0.15)', padding: '5px 12px', borderRadius: 6 },
-};

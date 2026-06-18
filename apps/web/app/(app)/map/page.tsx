@@ -31,7 +31,7 @@ function MapContent() {
   }
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: 'calc(100vh - var(--nav-top-h))', display: 'flex', flexDirection: 'column' }} className="vif-map-fullscreen">
       <div style={{ padding: '12px 16px', background: '#fff', borderBottom: '1px solid #e5e7eb', display: 'flex', gap: 12, alignItems: 'center' }}>
         <a href={`/proposition/${propositionId}`} style={{ fontSize: 14, color: '#2563eb', textDecoration: 'none' }}>
           ← Retour à la proposition
