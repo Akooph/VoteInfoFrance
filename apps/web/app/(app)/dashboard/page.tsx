@@ -17,15 +17,16 @@ export default function DashboardPage() {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
 
-      if (token) {
-        const profile = await api.profile.get(token).catch(() => null);
-        if (profile?.codePostal) {
-          const geo = await api.geo.lookup(profile.codePostal).catch(() => null);
-          setGeoResult(geo);
-        }
+      const [profile, data] = await Promise.all([
+        token ? api.profile.get(token).catch(() => null) : Promise.resolve(null),
+        api.propositions.list({ page: 1, limit: 20, token }).catch(() => null),
+      ]);
+
+      if (profile?.codePostal) {
+        const geo = await api.geo.lookup(profile.codePostal).catch(() => null);
+        setGeoResult(geo);
       }
 
-      const data = await api.propositions.list({ page: 1, limit: 20, token }).catch(() => null);
       setPropositions(data);
       setLoading(false);
     }

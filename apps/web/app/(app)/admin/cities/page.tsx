@@ -28,8 +28,16 @@ export default async function CitiesPage() {
 
   const { data: cities } = await db
     .from('supported_cities')
-    .select('*, communes(nom, code_postal, code_dept)')
+    .select('*')
     .order('added_at', { ascending: false });
+
+  const inseeCodes = (cities ?? []).map((c) => c.commune_insee);
+  const { data: communesRows } = inseeCodes.length
+    ? await db.from('communes').select('code_insee, nom, code_dept').in('code_insee', inseeCodes)
+    : { data: [] };
+  const communeMap = Object.fromEntries(
+    (communesRows ?? []).map((c) => [c.code_insee, c as { nom: string; code_dept: string }]),
+  );
 
   const statusColor = (s: string) =>
     s === 'active' ? { bg: '#d1fae5', text: '#065f46' } :
@@ -71,12 +79,12 @@ export default async function CitiesPage() {
           <tbody>
             {cities?.map((c) => {
               const col = statusColor(c.status);
-              const commune = c.communes as { nom: string; code_postal: string; code_dept: string } | null;
+              const commune = communeMap[c.commune_insee] ?? null;
               return (
                 <tr key={c.id} style={{ borderBottom: '1px solid #f9fafb' }}>
                   <td style={{ padding: '12px 0', fontWeight: 600, color: '#111827' }}>{commune?.nom ?? c.commune_insee}</td>
                   <td style={{ padding: '12px 12px 12px 0', color: '#6b7280', fontFamily: 'monospace' }}>{c.commune_insee}</td>
-                  <td style={{ padding: '12px 12px 12px 0', color: '#6b7280' }}>{commune?.code_dept}</td>
+                  <td style={{ padding: '12px 12px 12px 0', color: '#6b7280' }}>{commune?.code_dept ?? '—'}</td>
                   <td style={{ padding: '12px 12px 12px 0' }}>
                     <span style={{ background: col.bg, color: col.text, padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>{c.status}</span>
                   </td>

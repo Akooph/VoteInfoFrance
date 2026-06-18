@@ -24,12 +24,24 @@ async function apiFetch<T>(
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_URL}${path}`, { ...rest, headers });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error((err as { message?: string }).message ?? 'API error');
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), 10_000);
+
+  try {
+    const res = await fetch(`${API_URL}${path}`, { ...rest, headers, signal: controller.signal });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: res.statusText }));
+      throw new Error((err as { message?: string }).message ?? 'API error');
+    }
+    return res.json() as Promise<T>;
+  } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error('API timeout — le serveur est peut-être en cours de démarrage');
+    }
+    throw err;
+  } finally {
+    clearTimeout(tid);
   }
-  return res.json() as Promise<T>;
 }
 
 export const api = {

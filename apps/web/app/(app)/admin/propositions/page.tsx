@@ -26,7 +26,8 @@ export default async function PropositionsPage({ searchParams }: { searchParams:
   if (params.institution) query = query.eq('institution', params.institution);
   if (params.geo_level) query = query.eq('geo_level', params.geo_level);
 
-  const { data: propositions, count } = await query;
+  const { data: propositions, count, error } = await query;
+  if (error) console.error('[admin/propositions] Supabase error:', error.message);
 
   const GEO_LEVELS = ['national', 'europeen', 'region', 'departement', 'commune'];
   const INSTITUTIONS = ['assemblee_nationale', 'senat', 'parlement_europeen', 'conseil_regional', 'conseil_municipal'];
